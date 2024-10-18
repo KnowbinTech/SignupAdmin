@@ -13,7 +13,7 @@
 	function getUser()  {
 		UserStore.subscribe(userData => {
 			if (userData) {
-				user = userData;								
+				user = userData;	
 			} else {
 				return null;
 			}
@@ -58,12 +58,14 @@
 	<DropdownMenu.Trigger asChild let:builder>
 		<Button variant="ghost" builders={[builder]} class="relative h-8 w-8 rounded-full">
 			<Avatar.Root class="h-8 w-8">
-				<img src={`${baseUrl}${user?user.profile_picture:''}`} alt="" />
-				<!-- <Avatar.Image src={user? user.profile_picture: ''} alt="user" /> -->
-				<!-- <Avatar.Fallback>SC</Avatar.Fallback> -->
+				{#if user?.profile_picture}
+					<Avatar.Image src={`${baseUrl}${user.profile_picture}`} alt="user" />
+				{:else}
+					<Avatar.Fallback>A</Avatar.Fallback>
+				{/if}
 			</Avatar.Root>
 		</Button>
-	</DropdownMenu.Trigger>
+	</DropdownMenu.Trigger>	
 	<DropdownMenu.Content class="w-56" align="end">
 		<DropdownMenu.Label class="font-normal">
 			<div class="flex flex-col space-y-1">
