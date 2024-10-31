@@ -10,7 +10,7 @@ export default defineConfig({
 		},
 		proxy:{
 			'/api':{
-				target:"https://manage.signupcasuals.com/api/",
+				target:"https://manage.signupcasuals.com/api/api/",
 				changeOrigin: true,
 				rewrite: path => path.replace(/^\/api/, ''),
 			}
