@@ -126,6 +126,9 @@
       if (categoryDetails.tags == "") {
         validation.tags = ["This field may not be blank."];
       }
+      if (categoryDetails.attribute_group == "") {
+        validation.attribute_group = ["This field may not be blank."];
+      }
 
       const formData = new FormData();
 
@@ -286,7 +289,7 @@
         </div>
         <div>
           <Select.Root>
-            <Select.Trigger class="input capitalize">
+            <Select.Trigger class="input capitalize {validation.attribute_group ? 'border-red-500' : ''}">
               {selectedAttributeGroup
                 ? selectedAttributeGroup
                 : "Select a Attribute Group"}</Select.Trigger
