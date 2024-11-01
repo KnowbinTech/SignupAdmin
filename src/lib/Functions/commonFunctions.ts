@@ -8,7 +8,6 @@ export const compressImage = async (file:File) =>{
             maxWidthOrHeight: 500,
             useWebWorker: true,
         };
-        console.log('compression is working')
         const compressedFile = await imageCompression(file, options);
         return compressedFile;
     } catch (error) {

@@ -47,9 +47,7 @@
       if(imageUpload.files[0].size/1024 > 45){
         brandDetails.logo = await compressImage(imageUpload.files[0])
         brandDetails.logo ? updateImage = true:'';
-        
-        console.log('image',brandDetails.logo)
-      }
+              }
       else{
               brandDetails.logo = imageUpload.files[0];
                     updateImage = true;
