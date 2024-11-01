@@ -17,6 +17,7 @@
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
   import CaretSort from "svelte-radix/CaretSort.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -195,8 +196,17 @@
   }
 
   async function uploadAvatar() {
-    updateImage = true;
-    categoryDetails.image = imageUpload.files[0];
+       if (imageUpload.files && imageUpload.files.length > 0) {
+      if(imageUpload.files[0].size/1024 > 45){
+        categoryDetails.image = await compressImage(imageUpload.files[0])
+        categoryDetails.image ? updateImage = true:'';
+              }
+      else{
+              categoryDetails.image = imageUpload.files[0];
+                    updateImage = true;
+
+      }
+    }
   }
 
   // Mount
