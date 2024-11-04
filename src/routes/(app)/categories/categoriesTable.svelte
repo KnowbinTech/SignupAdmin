@@ -38,7 +38,6 @@
     { name: "Description", value: true },
     { name: "Tags", value: true },
     { name: "Parent Category", value: false },
-    { name: "Second Parent Ccategory", value: false },
     { name: "Created At", value: false },
     { name: "Updated At", value: false },
     { name: "Created By", value: false },
@@ -247,18 +246,15 @@
           <Table.Head>Parent Category</Table.Head>
         {/if}
         {#if hidableCoulumns[4].value}
-          <Table.Head>Second Parent Ccategory</Table.Head>
-        {/if}
-        {#if hidableCoulumns[5].value}
           <Table.Head>Created At</Table.Head>
         {/if}
-        {#if hidableCoulumns[6].value}
+        {#if hidableCoulumns[5].value}
           <Table.Head>Updated At</Table.Head>
         {/if}
-        {#if hidableCoulumns[7].value}
+        {#if hidableCoulumns[6].value}
           <Table.Head>Created By</Table.Head>
         {/if}
-        {#if hidableCoulumns[8].value}
+        {#if hidableCoulumns[7].value}
           <Table.Head>Updated By</Table.Head>
         {/if}
         <Table.Head>Action</Table.Head>
@@ -283,21 +279,18 @@
           <Table.Cell>{data.tags}</Table.Cell>
         {/if}
         {#if hidableCoulumns[3].value}
-          <Table.Cell>{data.parent_category}</Table.Cell>
+          <Table.Cell>{data.parent_category?data.parent_category.name:'Nil'}</Table.Cell>
         {/if}
         {#if hidableCoulumns[4].value}
-          <Table.Cell>{data.second_parent_category}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[5].value}
           <Table.Cell>{data.created_at}</Table.Cell>
         {/if}
-        {#if hidableCoulumns[6].value}
+        {#if hidableCoulumns[5].value}
           <Table.Cell>{data.updated_at}</Table.Cell>
         {/if}
-        {#if hidableCoulumns[7].value}
+        {#if hidableCoulumns[6].value}
           <Table.Cell>{data.created_by}</Table.Cell>
         {/if}
-        {#if hidableCoulumns[8].value}
+        {#if hidableCoulumns[7].value}
           <Table.Cell>{data.updated_by}</Table.Cell>
         {/if}
         <Table.Cell>
