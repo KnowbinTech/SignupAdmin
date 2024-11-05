@@ -17,6 +17,7 @@
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
   import CaretSort from "svelte-radix/CaretSort.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -126,6 +127,9 @@
       if (categoryDetails.tags == "") {
         validation.tags = ["This field may not be blank."];
       }
+      if (categoryDetails.attribute_group == "") {
+        validation.attribute_group = ["This field may not be blank."];
+      }
 
       const formData = new FormData();
 
@@ -192,8 +196,17 @@
   }
 
   async function uploadAvatar() {
-    updateImage = true;
-    categoryDetails.image = imageUpload.files[0];
+       if (imageUpload.files && imageUpload.files.length > 0) {
+      if(imageUpload.files[0].size/1024 > 45){
+        categoryDetails.image = await compressImage(imageUpload.files[0])
+        categoryDetails.image ? updateImage = true:'';
+              }
+      else{
+              categoryDetails.image = imageUpload.files[0];
+                    updateImage = true;
+
+      }
+    }
   }
 
   // Mount
@@ -286,7 +299,7 @@
         </div>
         <div>
           <Select.Root>
-            <Select.Trigger class="input capitalize">
+            <Select.Trigger class="input capitalize {validation.attribute_group ? 'border-red-500' : ''}">
               {selectedAttributeGroup
                 ? selectedAttributeGroup
                 : "Select a Attribute Group"}</Select.Trigger

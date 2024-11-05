@@ -9,6 +9,7 @@
   import { toast } from "svelte-sonner";
   import * as Card from "$lib/components/ui/card";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -43,8 +44,15 @@
 
   async function uploadAvatar() {
     if (imageUpload.files && imageUpload.files.length > 0) {
-      updateImage = true;
-      brandDetails.logo = imageUpload.files[0];
+      if(imageUpload.files[0].size/1024 > 45){
+        brandDetails.logo = await compressImage(imageUpload.files[0])
+        brandDetails.logo ? updateImage = true:'';
+              }
+      else{
+              brandDetails.logo = imageUpload.files[0];
+                    updateImage = true;
+
+      }
     }
   }
 

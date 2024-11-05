@@ -16,11 +16,12 @@ const setTokenToHeaders = function (request) {
 
 const getTokenFromResponse = function () {
     csrfToken = Cookies.get('csrftoken');
+    return csrfToken
 }
 
 
 function createAxiosInstance() {
-
+    
     const axiosInstance = axios.create({
         baseURL: '/api',
         withCredentials: true,
