@@ -18,12 +18,14 @@
   let selectedBrand: string;
   let tags: any = [];
   let selectedCategory: string;
+  let selectedGender: string;
   let editBrand: boolean = false;
   let editCategory: boolean = false;
   let editImage: boolean = false;
   let editTag: boolean = false;
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
+  const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
 
   // This function processes the tag input when the user types or pastes the tags
 
@@ -44,6 +46,7 @@
     tags: [],
     dimension: "",
     images: [],
+    preferred_gender: "",
   };
 
   const reactiveImages = writable([]);
@@ -133,6 +136,18 @@
     }
   }
 
+  function handleGenderChange(gender: string) { // Renamed parameter for clarity
+    // editCategory = true;
+    productDetails.preferred_gender = gender;
+    // const categoriesArray = $categories;
+    // const foundGender = categoriesArray.find(
+    //   (gender: any) => gender.id === selectedGenderId // Use selectedGenderId to find the gender
+    // );
+    // if (foundGender) {
+    //   selectedGender = foundGender.name; // Update the outer selectedGender variable
+    // }
+  }
+
   function handleBrandChange(selectedBrandId: string) {
     editBrand = true;
     const brandsArray = $brands;
@@ -158,6 +173,10 @@
 
       if (productDetails.short_description == "") {
         validation.short_description = ["This field may not be blank."];
+      }
+
+      if (productDetails.preferred_gender == "") {
+        validation.preferred_gender = ["This field may not be blank."];
       }
 
       if (productDetails.description == "") {
@@ -200,6 +219,7 @@
         validation.name ||
         validation.short_description ||
         validation.description ||
+        validation.preferred_gender ||
         validation.sku ||
         validation.price ||
         validation.selling_price ||
@@ -236,6 +256,8 @@
         form.append("rating", productDetails.rating);
         form.append("noOfReviews", productDetails.noOfReviews);
         form.append("tags", productDetails.tags);
+        form.append("preferred_gender", productDetails.preferred_gender);
+
         if (editImage) {
           for (let i = 0; i < productDetails.images.length; i++) {
             form.append("images", productDetails.images[i]);
@@ -358,7 +380,7 @@
       <Dialog.Title>{editForm ? "Edit Product" : "Add Product"}</Dialog.Title>
     </Dialog.Header>
 
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-3 gap-4">
       <div class="grid gap-2">
         <Label for="area">Product Name</Label>
         <Input
@@ -423,6 +445,9 @@
         </Select.Root>
         <p class="text-red-500">{validation.brand ? validation.brand : ""}</p>
       </div>
+    </div>
+
+    <div class="grid grid-cols-3 items-end gap-4">
       <div class="grid gap-2">
         <Label for="tags">Tags</Label>
         <Input
@@ -433,29 +458,59 @@
         />
         <p class="text-red-500">{validation.tags ? validation.tags : ""}</p>
       </div>
-    </div>
-    <div class="grid gap-2">
-      <div class=" flex justify-between">
-        <Label for="subject">Short description</Label>
-
-        <p class=" text-blue-500 font-semibold">
-          Remaining Letters: {Math.max(
-            0,
-            charLimit - productDetails.short_description.length
-          )}
+      <div class="grid gap-2">
+        <Label for="security-level">Preferred Gender</Label>
+        <Select.Root>
+          <Select.Trigger
+            class="input capitalize {validation.preferred_gender
+              ? 'border-red-500'
+              : ''}"
+          >
+            {productDetails.preferred_gender ? productDetails.preferred_gender : "Select Gender"}
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Group>
+              {#each genders as gender}
+                <Select.Item
+                  value={gender}
+                  label={gender}
+                  class="capitalize card"
+                  on:click={() => handleGenderChange(gender)}
+                >
+                  {gender}
+                </Select.Item>
+              {/each}
+            </Select.Group>
+          </Select.Content>
+        </Select.Root>
+        <p class="text-red-500">
+          {validation.categories ? validation.categories : ""}
         </p>
       </div>
 
-      <Input
-        id="subject"
-        placeholder="short description of the product"
-        bind:value={productDetails.short_description}
-        class={validation.short_description ? "border-red-500" : ""}
-        on:input={handleInputChange}
-      />
-      <p class="text-red-500">
-        {validation.short_description ? validation.short_description : ""}
-      </p>
+      <div class="grid gap-2">
+        <div class=" flex justify-start gap-10">
+          <Label for="subject">Short description</Label>
+
+          <p class=" text-blue-500 font-semibold">
+            Remaining Letters: {Math.max(
+              0,
+              charLimit - productDetails.short_description.length
+            )}
+          </p>
+        </div>
+
+        <Input
+          id="subject"
+          placeholder="short description of the product"
+          bind:value={productDetails.short_description}
+          class={validation.short_description ? "border-red-500" : ""}
+          on:input={handleInputChange}
+        />
+        <p class="text-red-500">
+          {validation.short_description ? validation.short_description : ""}
+        </p>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 gap-4">

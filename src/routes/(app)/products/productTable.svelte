@@ -66,6 +66,7 @@
     { name: "Stock", value: true },
     { name: "Categories", value: true },
     { name: "Rating", value: false },
+    { name: "Preferred Gender", value: false },
   ];
 
   const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
@@ -432,6 +433,9 @@
         {#if hidableCoulumns[15].value}
           <Table.Head>Rating</Table.Head>
         {/if}
+        {#if hidableCoulumns[16].value}
+        <Table.Head>Preferred Gender</Table.Head>
+      {/if}
         <Table.Head>Action</Table.Head>
       </Table.Row>
     </Table.Header>
@@ -535,6 +539,9 @@
         {#if hidableCoulumns[15].value}
           <Table.Cell>{data.rating} stars</Table.Cell>
         {/if}
+        {#if hidableCoulumns[16].value}
+        <Table.Cell>{data.preferred_gender}</Table.Cell>
+      {/if}
         <Table.Cell>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>
