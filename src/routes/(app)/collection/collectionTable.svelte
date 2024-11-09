@@ -102,7 +102,7 @@
   }
 
   function confirmDelete() {
-    API.delete(`/masterdata/collection/${deletingCollection.id}/delete_record/`)
+    API.delete(`/products/collection/${deletingCollection.id}/delete_record/`)
       .then(() => {
         closeDeleteModal();
         getCollections();
