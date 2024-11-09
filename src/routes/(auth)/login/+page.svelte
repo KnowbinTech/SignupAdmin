@@ -110,74 +110,10 @@
   <div
     class="mt-10 sm:mx-auto bg-background text-foreground sm:w-full sm:max-w-sm"
   >
-    <form class="space-y-6">
-      <div>
-        <label
-          for="username"
-          class="block bg-background text-foreground text-sm font-medium leading-6"
-          >User Name</label
-        >
-        <div class="mt-2">
-          <Input
-            id="username"
-            bind:value={login.username}
-            name="username"
-            placeholder="Username"
-            autocomplete="username"
-            required
-            class="block w-full pl-4  rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
-          />
-          {#if usernameError}
-            <p class="text-red-500 mt-1 text-sm">{usernameError}</p>
-          {/if}
-        </div>
-      </div>
-
-      <div>
-        <div
-          class="flex items-center bg-background text-foreground justify-between"
-        >
-          <label
-            for="password"
-            class="block text-sm font-medium bg-background text-foreground leading-6"
-            >Password</label
-          >
-          <div class="text-sm">
-            <p class="font-normal text-violet-600 hover:text-violet-500">
-              Forgot password? Contact Admin
-            </p>
-          </div>
-        </div>
-        <div class="mt-2">
-          <Input
-            id="password"
-            bind:value={login.password}
-            name="password"
-            type="password"
-            placeholder="Password"
-            autocomplete="current-password"
-            required
-            class="block pl-4 w-full rounded-md  border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
-            on:keydown={(event) => {
-            if (event.key === "Enter") {
-              loginFn(); 
-            }
-          }}
-          />
-          {#if passwordError}
-          <p class="text-red-500 mt-1 text-sm">{passwordError}</p>
-        {/if}
-        </div>
-      </div>
-
-      {#if generalError}
-        <p class="text-red-500 mt-2 text-sm">{generalError}</p>
-      {/if}
-
+    <form class="space-y-6" method="POST" action="?/signIn">
       <div>
         <Button
-          type="button"
-          on:click={loginFn}
+          type="submit"
           class="flex w-full justify-center  px-3 py-1.5 text-sm font-semibold leading-6  shadow-sm  "
           >Sign in
         </Button>
