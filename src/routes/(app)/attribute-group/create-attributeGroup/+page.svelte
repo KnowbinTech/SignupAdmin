@@ -3,14 +3,15 @@
   import { createEventDispatcher } from "svelte";
   import { toast } from "svelte-sonner";
   import * as Select from "$lib/components/ui/select";
-
-  const dispatch = createEventDispatcher();
   import API from "$lib/services/api";
   import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { Input } from "$lib/components/ui/input";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import type { number } from "zod";
+  import { LoaderCircle } from "lucide-svelte";
+  
+  const dispatch = createEventDispatcher();
 
   export let editData: any;
   export let editForm: boolean;
@@ -18,11 +19,11 @@
   let id = "";
   let name = "";
   let attributes: number[] = [];
-
   let attribute: any[] = [];
   let selectedAttributes: number[] = [];
   let selectedAttributeNames: string[] = [];
   let validation: any = {};
+  let isLoading = false;
 
   if (editForm) {
     id = editData.id;
@@ -60,7 +61,10 @@
   }
 
   async function onCreateNewAttribute() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       validation = {};
 
       if (name == "") {
@@ -83,7 +87,8 @@
       if (validation.name || validation.attributes) {
         toast(`Please fill the required field`);
         console.log(validation);
-      } else {
+      }
+
         if (editForm) {
           await API.put(url, formData);
         } else {
@@ -97,7 +102,7 @@
           : "Attribute Group Created";
 
         toast(`${action} successfully!`);
-      }
+
     } catch (error: any) {
       const action = editForm
         ? "Update Attribute Group"
@@ -105,6 +110,8 @@
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -171,13 +178,28 @@
       <p class="text-red-500">{validation.attributes ? validation.name : ""}</p>
     </div>
     <Dialog.Footer class="justify-between space-x-2">
-      <Button variant="ghost" on:click={cancelEditModel}>Cancel</Button>
+      <Button variant="ghost" on:click={cancelEditModel} disabled={isLoading}>Cancel</Button>
       {#if editForm === false}
-        <Button type="submit" on:click={() => onCreateNewAttribute()}>
+        <Button 
+          type="submit" 
+          on:click={() => onCreateNewAttribute()}
+          disabled={isLoading}
+          class="relative">
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
           Save
         </Button>
       {:else}
-        <Button on:click={() => onCreateNewAttribute()}>Update</Button>
+        <Button 
+          on:click={() => onCreateNewAttribute()}
+          disabled={isLoading}
+          class="relative">
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
+        </Button>
       {/if}
     </Dialog.Footer>
   </Dialog.Content>
