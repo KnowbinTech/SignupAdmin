@@ -8,10 +8,12 @@
   import { Label } from "$lib/components/ui/label";
   import { Input } from "$lib/components/ui/input";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { LoaderCircle } from "lucide-svelte";
 
   export let editData: any;
   export let editForm: boolean;
   let validation: any = {};
+  let isLoading = false;
 
   let id = "";
   let name = "";
@@ -24,7 +26,10 @@
   }
 
   async function onCreateNewAttribute() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       validation = {};
 
       if (name == "") {
@@ -46,7 +51,9 @@
 
       if (validation.name || validation.value) {
         toast(`Please fill the required field`);
-      } else {
+        return;
+      } 
+
         if (editForm) {
           await API.put(url, form);
         } else {
@@ -58,12 +65,13 @@
         const action = editForm ? "Attribute Updated" : "Attribute Created";
 
         toast(`${action} successfully!`);
-      }
     } catch (error: any) {
       const action = editForm ? "Update Attribute" : "Create Attribute";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -107,13 +115,30 @@
       </div>
     </div>
     <Dialog.Footer class="justify-between space-x-2">
-      <Button variant="ghost" on:click={cancelEditModel}>Cancel</Button>
+      <Button variant="ghost" on:click={cancelEditModel} disabled={isLoading}>Cancel</Button>
       {#if editForm === false}
-        <Button type="submit" on:click={() => onCreateNewAttribute()}>
+        <Button 
+          type="submit" 
+          on:click={() => onCreateNewAttribute()}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
           Save
         </Button>
       {:else}
-        <Button on:click={() => onCreateNewAttribute()}>Update</Button>
+        <Button 
+          on:click={() => onCreateNewAttribute()}
+          disabled={isLoading}
+          class="relative"
+          >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
+        </Button>
       {/if}
     </Dialog.Footer>
   </Dialog.Content>
