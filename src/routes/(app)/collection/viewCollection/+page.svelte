@@ -27,6 +27,8 @@
   id? localStorage.setItem('collectionId', id):"";
   let collectionId: any = localStorage.getItem("collectionId");
 
+  let showDeleteModal = false;
+  let deletingCollectionProduct: any;
 
   let hidableCoulumns: any[] = [
     { name: "Images", value: true },
@@ -57,6 +59,33 @@
     }
   }
 
+  function onDelete(id: any, name: any) {
+    showDeleteModal = true;
+    deletingCollectionProduct = {
+      id: id,
+      name: name,
+    };
+  }
+
+  function confirmDelete() {
+    API.delete(
+      `/products/collection-items/${deletingCollectionProduct.id}/delete_record/`
+    )
+      .then(() => {
+        closeDeleteModal();
+        getCollection();
+        toast("Lookbook Item Deleted Successfully!");
+      })
+      .catch((error) => {
+        console.error("Error deleting Lookbook:", error);
+        closeDeleteModal();
+      });
+  }
+
+  function closeDeleteModal() {
+    showDeleteModal = false;
+  }
+
   function cancelModel() {
     dispatch("cancel");
   }
@@ -71,6 +100,16 @@
     goto("/collection/");
   }
 </script>
+
+<div>
+  {#if showDeleteModal}
+    <ConfirmDeleteModal
+      attribute={deletingCollectionProduct.name}
+      on:confirm={confirmDelete}
+      on:cancel={closeDeleteModal}
+    />
+  {/if}
+</div>
 
 <div
   class="m-3 bg-background text-foreground rounded-md p-4 px-6 border"
@@ -265,28 +304,10 @@
                 >
               </DropdownMenu.Trigger>
               <DropdownMenu.Content class="absolute">
-                <!-- <DropdownMenu.Item on:click={() => onViewProduct(data)}>
-                <i class="fa fa-eye sm mr-2"> </i>View</DropdownMenu.Item
-              >
-              <DropdownMenu.Item on:click={() => onEditProduct(data)}>
-                <i class="fa fa-pencil sm mr-2"> </i>Edit</DropdownMenu.Item
-              >
               <DropdownMenu.Item on:click={() => onDelete(data.id, data.name)}>
                 <i class="fa fa-trash sm mr-2" style="color:red">
-                </i>Delete</DropdownMenu.Item
+                </i>Remove</DropdownMenu.Item
               >
-              <DropdownMenu.Item on:click={() => addVariant(data)}>
-                Add Variant</DropdownMenu.Item
-              >
-              <DropdownMenu.Item on:click={() => viewVariant(data)}>
-                View Variant</DropdownMenu.Item
-              >
-              <DropdownMenu.Item on:click={() => addLookbook(data)}>
-                Add Lookbook</DropdownMenu.Item
-              >
-              <DropdownMenu.Item on:click={() => addToCollection(data)}>
-                Add To Collection</DropdownMenu.Item
-              > -->
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </Table.Cell>

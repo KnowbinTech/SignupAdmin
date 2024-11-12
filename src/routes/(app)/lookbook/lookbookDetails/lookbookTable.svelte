@@ -306,7 +306,7 @@
                   on:click={() => onDelete(data.id, data.product.name)}
                 >
                   <i class="fa fa-trash sm mr-2" style="color:red">
-                  </i>Delete</DropdownMenu.Item
+                  </i>Remove</DropdownMenu.Item
                 >
               </DropdownMenu.Content>
             </DropdownMenu.Root>

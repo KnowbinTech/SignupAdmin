@@ -115,15 +115,6 @@
     });
   });
 
-  async function fetchTags() {
-    try {
-      const res = await API.get("/masterdata/tag/");
-      tags = res.data.results;
-    } catch (error) {
-      console.log("category:fetch-tags:", error);
-    }
-  }
-
   function handleCategoryChange(selectedCategoryId: string) {
     editCategory = true;
     productDetails.categories = selectedCategoryId;
@@ -293,11 +284,6 @@
     dispatch("cancel");
   }
 
-  onMount(async () => {
-    await fetchTags();
-  });
-
-  // image upload
   let imageUpload: HTMLInputElement;
 
   function pickAvatar() {
