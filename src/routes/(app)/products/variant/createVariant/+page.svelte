@@ -9,6 +9,7 @@
   import * as Card from "$lib/components/ui/card";
   import { productDetailsStore } from "$lib/stores/data";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { LoaderCircle } from "lucide-svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -32,6 +33,7 @@
   let isSubscribed = false;
   let unsubscribe: () => void;
   let validation: any = {};
+  let isLoading = false;
 
   let variantDetails: any = {
     product: "",
@@ -173,7 +175,10 @@
   }
 
   async function createVariant() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       validation = {};
 
       if (variantDetails.attributes == "") {
@@ -227,10 +232,9 @@
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
-    // onDestroy(() => {
-    //     unsubscribe();
-    //   });
   }
 
   function pickAvatar() {
@@ -347,10 +351,33 @@
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button type="button" variant="ghost" on:click={cancelModel}
-        >Cancel</Button
-      >
-      <Button type="submit" on:click={createVariant}>Save</Button>
+      <Button 
+        type="button" 
+        variant="ghost" 
+        on:click={cancelModel}
+        disabled={isLoading}
+        >Cancel</Button>
+      {#if editForm === false}
+      <Button 
+        type="submit" 
+        on:click={createVariant}
+        disabled={isLoading}
+        class="relative">
+        {#if isLoading}
+        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        Save</Button>
+      {:else}
+      <Button 
+        type="submit" 
+        on:click={createVariant}
+        disabled={isLoading}
+        class="relative">
+        {#if isLoading}
+        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        Update</Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
