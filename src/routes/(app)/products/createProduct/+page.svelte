@@ -10,6 +10,7 @@
   import { writable } from "svelte/store";
   import { toast } from "svelte-sonner";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { LoaderCircle } from "lucide-svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -25,6 +26,10 @@
   let editTag: boolean = false;
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
+  let isLoading = false;
+
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
 
   // This function processes the tag input when the user types or pastes the tags
@@ -150,7 +155,10 @@
   }
 
   async function createProduct() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       productDetails.tags = tagInput
         .split(",")
         .map((tag) => tag.trim())
@@ -255,6 +263,8 @@
           }
         }
 
+        await delay(3000);
+
         const url = editForm
           ? `/products/product/${productDetails.id}/update_record/`
           : "/products/product/create_record/";
@@ -275,6 +285,8 @@
       console.error("create:product:", error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -640,8 +652,36 @@
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button variant="ghost" on:click={() => cancelModel()}>Cancel</Button>
-      <Button on:click={() => createProduct()}>Save</Button>
+      <Button 
+        variant="ghost" 
+        on:click={() => cancelModel()}
+        disabled={isLoading}
+        >
+        Cancel
+      </Button>
+      {#if editForm === false}
+        <Button 
+        on:click={() => createProduct()}
+        disabled={isLoading}
+        class="relative"
+        >
+        {#if isLoading}
+        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        Save
+      </Button>
+      {:else}
+      <Button 
+        on:click={() => createProduct()}
+        disabled={isLoading}
+        class="relative"
+        >
+        {#if isLoading}
+        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        Update
+      </Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
