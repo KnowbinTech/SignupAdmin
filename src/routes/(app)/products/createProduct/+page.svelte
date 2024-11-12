@@ -28,8 +28,6 @@
   let validation: any = {};
   let isLoading = false;
 
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
   const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
 
   // This function processes the tag input when the user types or pastes the tags
@@ -262,8 +260,6 @@
             form.append("images", productDetails.images[i]);
           }
         }
-
-        await delay(3000);
 
         const url = editForm
           ? `/products/product/${productDetails.id}/update_record/`
