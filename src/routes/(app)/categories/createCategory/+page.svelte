@@ -18,6 +18,8 @@
   import CaretSort from "svelte-radix/CaretSort.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import { compressImage } from "$lib/Functions/commonFunctions";
+  import { LoaderCircle } from "lucide-svelte";
+
 
   const dispatch = createEventDispatcher();
 
@@ -27,6 +29,7 @@
   export let editForm: boolean;
   let updateImage: boolean = false;
   let validation: any = {};
+  let isLoading = false;
 
   let categoryDetails: any = {
     name: "",
@@ -105,7 +108,11 @@
   }
 
   async function createCategory() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
+
       validation = {};
       categoryDetails.tags = tagInput
         .split(",")
@@ -162,7 +169,8 @@
         validation.tags
       ) {
         toast(`Please fill the required field`);
-      } else {
+      }
+
         if (editForm) {
           await API.put(url, formData);
         } else {
@@ -172,12 +180,14 @@
         dispatch("newCategory");
         const action = editForm ? "Category Updated" : "Category Created";
         toast(`${action} successfully!`);
-      }
+
     } catch (error: any) {
       const action = editForm ? "Update Category" : "Create Category";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -439,11 +449,38 @@
     <!-- Assuming Select component exists and can handle multiple selections -->
 
     <Dialog.Footer>
-      <Button type="button" variant="ghost" on:click={cancelModel}
+      <Button 
+        type="button" 
+        variant="ghost" 
+        on:click={cancelModel}
+        disabled={isLoading}
         >Cancel
       </Button>
-
-      <Button type="button" on:click={createCategory}>Save</Button>
+      {#if editForm === false}
+        <Button 
+          type="button" 
+          on:click={createCategory}
+          disabled={isLoading}
+          class="relative"
+        >
+        {#if isLoading}
+          <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        Save
+        </Button>
+      {:else}
+        <Button 
+          type="button" 
+          on:click={createCategory}
+          disabled={isLoading}
+          class="relative"
+        >
+        {#if isLoading}
+          <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        Update
+        </Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
