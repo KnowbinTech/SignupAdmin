@@ -26,6 +26,20 @@
   let showDeleteModal = false;
   let deletingVariant: any;
 
+  function isHexColor(str: string) {
+    return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(str);
+  }
+
+  function formatAttributeValue(attr: any) {
+    if (isHexColor(attr.value)) {
+      return `<span class="flex items-center gap-2">
+                ${attr.attributes.name}: ${attr.value}
+                <span class="inline-block w-4 h-4 rounded-full" style="background-color: ${attr.value}"></span>
+              </span>`;
+    }
+    return `${attr.attributes.name}: ${attr.value}`;
+  }
+
   $: {
     if ($variantFormStore.refreshTrigger) {
       getVariant();
@@ -239,7 +253,19 @@
           >
         {/if}
         {#if hidableCoulumns[1].value}
-          <Table.Cell>{data.attributes.map(attr => `${attr.attributes.name}: ${attr.value}`).join(", ")}</Table.Cell>
+          <Table.Cell>
+            {#each data.attributes as attr}
+              <div class="flex items-center gap-2">
+                {attr.attributes.name}: {attr.value}
+                {#if isHexColor(attr.value)}
+                  <span 
+                    class="inline-block w-4 h-4 rounded-full border border-gray-200" 
+                    style="background-color: {attr.value}"
+                  ></span>
+                {/if}
+              </div>
+            {/each}
+          </Table.Cell>
         {/if}
         {#if hidableCoulumns[2].value}
           <Table.Cell>{data.selling_price}</Table.Cell>
