@@ -4,7 +4,6 @@
   import VariantTable from "./variantTable.svelte";
   import CreateVariant from "./createVariant/+page.svelte";
   import { variantFormStore } from '$lib/stores/variantStore';
-  import { toast } from "svelte-sonner";
 
   let productID: any;
 
@@ -24,7 +23,6 @@
   function handleVariantSuccess() {
     variantFormStore.close();
     variantFormStore.triggerRefresh();
-    toast("Variant added successfully!");
   }
 </script>
 

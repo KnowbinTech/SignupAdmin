@@ -150,7 +150,7 @@
     <div>
       <Input
         class="max-w-sm"
-        placeholder="Search Categories..."
+        placeholder="Search Variant..."
         type="text"
         on:input={(event) => searchName(event)}
       />
