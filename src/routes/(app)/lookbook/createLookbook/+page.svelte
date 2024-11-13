@@ -58,7 +58,7 @@
     }
   }
 
-  async function createCollection() {
+  async function createLookbook() {
     if (isLoading) return;
 
     try {
@@ -103,6 +103,7 @@
         dispatch("newLookbook");
         const action = editForm ? "Lookbook Updated" : "Lookbook Created";
         toast(`${action} successfully!`);
+        dispatch("cancel");
 
     } catch (error: any) {
       const action = editForm ? "Update Lookbook" : "Create Lookbook";
@@ -213,7 +214,7 @@
       {#if editForm === false}
         <Button 
           type="submit" 
-          on:click={createCollection}
+          on:click={createLookbook}
           disabled={isLoading}
           class="relative">
           {#if isLoading}
@@ -224,7 +225,7 @@
         {:else}
         <Button 
             type="submit" 
-            on:click={createCollection}
+            on:click={createLookbook}
             disabled={isLoading}
             class="relative">
             {#if isLoading}

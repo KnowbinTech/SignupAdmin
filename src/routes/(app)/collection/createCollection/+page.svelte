@@ -103,6 +103,7 @@
         dispatch("newCollection");
         const action = editForm ? "Collection Updated" : "Collection Created";
         toast(`${action} successfully!`);
+        dispatch("cancel");
 
     } catch (error: any) {
       const action = editForm ? "Update Collection" : "Create Collection";
