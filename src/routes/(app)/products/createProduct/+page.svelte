@@ -272,9 +272,10 @@
         }
 
         dispatch("newProduct");
-
         const action = editForm ? "Product Updated" : "Product Created";
         toast(`${action} successfully!`);
+        dispatch("cancel");
+
       }
     } catch (error: any) {
       const action = editForm ? "Product Updated" : "Product Created";
@@ -478,7 +479,7 @@
           </Select.Content>
         </Select.Root>
         <p class="text-red-500">
-          {validation.categories ? validation.categories : ""}
+          {validation.preferred_gender ? validation.preferred_gender : ""}
         </p>
       </div>
 
@@ -543,6 +544,7 @@
               id="area"
               class="pl-8 {validation.selling_price ? 'border-red-500' : ''}"
               placeholder="Selling Price"
+              type="number"
               bind:value={productDetails.selling_price}
               on:input={sellingPriceValidation}
             />
@@ -561,6 +563,7 @@
               id="area"
               class="pl-8 {validation.price ? 'border-red-500' : ''}"
               placeholder="MRP"
+              type="number"
               bind:value={productDetails.price}
               on:input={priceValidation}
             />
