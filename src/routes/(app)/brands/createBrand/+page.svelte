@@ -96,6 +96,8 @@
         dispatch("newBrand");
         const action = editForm ? "Brand Updated" : "Brand Created";
         toast(`${action} successfully!`);
+        dispatch("cancel");
+
       }
     } catch (error: any) {
       const action = editForm ? "Update Brand" : "Create Brand";
