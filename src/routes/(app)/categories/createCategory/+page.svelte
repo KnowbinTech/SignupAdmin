@@ -180,7 +180,8 @@
         dispatch("newCategory");
         const action = editForm ? "Category Updated" : "Category Created";
         toast(`${action} successfully!`);
-
+        dispatch("cancel");
+        
     } catch (error: any) {
       const action = editForm ? "Update Category" : "Create Category";
       console.log(`${action}:`, error);
