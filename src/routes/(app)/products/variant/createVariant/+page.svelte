@@ -10,6 +10,7 @@
   import { productDetailsStore } from "$lib/stores/data";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { LoaderCircle } from "lucide-svelte";
+  import { any } from "zod";
 
   const dispatch = createEventDispatcher();
 
@@ -247,6 +248,10 @@
     console.log("New image:", variantDetails.images);
   }
 
+  function isColorCode(value: string): boolean {
+    return value.startsWith('#') && /^#[0-9A-Fa-f]{6}$/.test(value);
+  }
+
   function cancelModel() {
     dispatch("cancel");
   }
@@ -273,11 +278,29 @@
           <Select.Root>
             <Select.Trigger class="input capitalize {validation.attributes ? 'border-red-500' : ''}">
               {#if selectedAttributeValues.has(detail.name)}
-                {selectedAttributeValues.get(detail.name)}
+                <div class="flex items-center gap-2">
+                  {#if isColorCode(selectedAttributeValues.get(detail.name))}
+                    <div 
+                      class="w-4 h-4 rounded-full border border-gray-300"
+                      style="background-color: {selectedAttributeValues.get(detail.name)}"
+                    ></div>
+                  {/if}
+                  {selectedAttributeValues.get(detail.name)}
+                </div>
               {:else}
-                {variantDetails.attributes.find(
-                  (attr) => attr.attribute === detail.id
-                )?.value ?? "Select an Attribute"}
+                {#if variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
+                  <div class="flex items-center gap-2">
+                    {#if isColorCode(variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value)}
+                      <div 
+                        class="w-4 h-4 rounded-full border border-gray-300"
+                        style="background-color: {variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}"
+                      ></div>
+                    {/if}
+                    {variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
+                  </div>
+                {:else}
+                  Select an Attribute
+                {/if}
               {/if}
             </Select.Trigger>
             <Select.Content>
@@ -290,7 +313,15 @@
                     on:click={() =>
                       handleAttributeValueChange(detail.id, detail.name, value)}
                   >
+                  <div class="flex items-center gap-2">
+                    {#if isColorCode(value)}
+                      <div 
+                        class="w-4 h-4 rounded-full border border-gray-300"
+                        style="background-color: {value}"
+                      ></div>
+                    {/if}
                     {value}
+                  </div>
                   </Select.Item>
                 {/each}
               </Select.Group>
