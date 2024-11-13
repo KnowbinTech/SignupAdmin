@@ -51,13 +51,13 @@
 
   let hidableCoulumns: any[] = [
     { name: "Images", value: true },
-    { name: "Short Description", value: true },
+    { name: "Short Description", value: false },
     { name: "Description", value: false },
     { name: "Brand", value: true },
-    { name: "HSN Code", value: true },
+    { name: "HSN Code", value: false },
     { name: "Tags", value: true },
     { name: "Number of Reviews", value: false },
-    { name: "Status", value: true },
+    { name: "Status", value: false },
     { name: "Created At", value: false },
     { name: "Updated At", value: false },
     { name: "Created By", value: false },
@@ -67,6 +67,7 @@
     { name: "Categories", value: true },
     { name: "Rating", value: false },
     { name: "Preferred Gender", value: false },
+    { name: "GST", value: true },
   ];
 
   const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
@@ -436,6 +437,9 @@
         {#if hidableCoulumns[16].value}
         <Table.Head>Preferred Gender</Table.Head>
       {/if}
+      {#if hidableCoulumns[17].value}
+      <Table.Head>GST</Table.Head>
+    {/if}
         <Table.Head>Action</Table.Head>
       </Table.Row>
     </Table.Header>
@@ -542,6 +546,9 @@
         {#if hidableCoulumns[16].value}
         <Table.Cell>{data.preferred_gender}</Table.Cell>
       {/if}
+      {#if hidableCoulumns[17].value}
+      <Table.Cell>{data.gst} %</Table.Cell>
+    {/if}
         <Table.Cell>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>

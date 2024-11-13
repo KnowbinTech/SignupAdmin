@@ -39,6 +39,7 @@
     description: "",
     sku: "",
     price: "",
+    gst: "",
     selling_price: "",
     categories: [],
     brand: "",
@@ -130,7 +131,8 @@
     }
   }
 
-  function handleGenderChange(gender: string) { // Renamed parameter for clarity
+  function handleGenderChange(gender: string) {
+    // Renamed parameter for clarity
     // editCategory = true;
     productDetails.preferred_gender = gender;
     // const categoriesArray = $categories;
@@ -188,9 +190,14 @@
         validation.price = ["This field may not be blank."];
       }
 
+      if (productDetails.gst == "") {
+        validation.gst = ["This field may not be blank."]; // Added validation for GST
+      }
+
       if (productDetails.selling_price == "") {
         validation.selling_price = ["This field may not be blank."];
       }
+      
 
       // if (productDetails.dimension == "") {
       //   validation.dimension = ["This field may not be blank."];
@@ -219,6 +226,7 @@
         validation.preferred_gender ||
         validation.sku ||
         validation.price ||
+        validation.gst ||
         validation.selling_price ||
         validation.categories ||
         validation.brand ||
@@ -243,6 +251,7 @@
         form.append("description", productDetails.description);
         form.append("sku", productDetails.sku);
         form.append("price", productDetails.price);
+        form.append("gst", productDetails.gst);
         form.append("selling_price", productDetails.selling_price);
         // form.append("dimension", productDetails.dimension);
         form.append("condition", productDetails.condition);
@@ -461,7 +470,9 @@
               ? 'border-red-500'
               : ''}"
           >
-            {productDetails.preferred_gender ? productDetails.preferred_gender : "Select Gender"}
+            {productDetails.preferred_gender
+              ? productDetails.preferred_gender
+              : "Select Gender"}
           </Select.Trigger>
           <Select.Content>
             <Select.Group>
@@ -536,7 +547,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-3 gap-2">
         <div class="grid gap-2">
           <Label for="area">Selling Price</Label>
           <div class="relative">
@@ -556,6 +567,16 @@
             >
           </div>
         </div>
+        <div class="grid gap-2">
+          <Label for="gst">GST</Label>
+          <Input
+              id="gst"
+              placeholder="Enter GST"
+              bind:value={productDetails.gst}
+              class={validation.gst ? "border-red-500" : ""}
+          />
+          <p class="text-red-500">{validation.gst ? validation.gst : ""}</p>
+      </div>
         <div class="grid gap-2">
           <Label for="area">MRP</Label>
           <div class="relative">
@@ -651,35 +672,35 @@
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button 
-        variant="ghost" 
+      <Button
+        variant="ghost"
         on:click={() => cancelModel()}
         disabled={isLoading}
-        >
+      >
         Cancel
       </Button>
       {#if editForm === false}
-        <Button 
-        on:click={() => createProduct()}
-        disabled={isLoading}
-        class="relative"
+        <Button
+          on:click={() => createProduct()}
+          disabled={isLoading}
+          class="relative"
         >
-        {#if isLoading}
-        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
-        {/if}
-        Save
-      </Button>
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save
+        </Button>
       {:else}
-      <Button 
-        on:click={() => createProduct()}
-        disabled={isLoading}
-        class="relative"
+        <Button
+          on:click={() => createProduct()}
+          disabled={isLoading}
+          class="relative"
         >
-        {#if isLoading}
-        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
-        {/if}
-        Update
-      </Button>
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
+        </Button>
       {/if}
     </Dialog.Footer>
   </Dialog.Content>
