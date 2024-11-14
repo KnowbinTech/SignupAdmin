@@ -85,27 +85,14 @@
         class="input"
       />
     </div>
-    <div class="grid gap-2">
-      <Label for="security-level">Variant</Label>
-      <Select.Root>
-        <Select.Trigger class="input capitalize">
-          {taxDetails.slab ? taxDetails.slab : "Select Slab Rate"}
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Group>
-            {#each taxArray as slab}
-              <Select.Item
-                value={slab.value}
-                label={slab.label}
-                class="capitalize card"
-                on:click={() => handleBrandChange(slab.value)}
-              >
-                {slab.label}
-              </Select.Item>
-            {/each}
-          </Select.Group>
-        </Select.Content>
-      </Select.Root>
+    <div class="mb-3">
+      <Label for="name">Percentage</Label>
+      <Input
+        id="percentage"
+        bind:value={taxDetails.slab}
+        placeholder="Percentage"
+        class="input"
+      />
     </div>
     <Dialog.Footer class="justify-between space-x-2">
       <Button type="button" variant="ghost" on:click={cancelDelete}
