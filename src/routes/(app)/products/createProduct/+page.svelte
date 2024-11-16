@@ -19,6 +19,7 @@
   let selectedBrand: string;
   let tags: any = [];
   let selectedCategory: string;
+  let selectedGst: string;
   let selectedGender: string;
   let editBrand: boolean = false;
   let editCategory: boolean = false;
@@ -29,7 +30,6 @@
   let isLoading = false;
 
   const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
-
   // This function processes the tag input when the user types or pastes the tags
 
   let productDetails: any = {
@@ -87,6 +87,12 @@
     updatedBy: string;
   };
 
+  type Gst = {
+    id: string;
+    name: string;
+    slab: string;
+  };
+
   export const brands = writable<Brand[]>([], (set) => {
     getBrands().then((data) => {
       set(data);
@@ -102,6 +108,42 @@
       return [];
     }
   }
+
+  let tax :any[]
+onMount(()=>{
+  getTax()
+})
+
+  async function getTax() {
+    try {
+        let response = await API.get("/inventory/tax");
+        return response.data.results
+
+    } catch (error) {
+      console.error("fetch:gst:", error);
+    }
+  }
+
+  let gst = writable<Gst[]>([], (set) => {
+    getTax().then((data) => {
+      set(data);
+    });
+  });
+
+  
+  function handleTaxChange(selectedTaxId: string) {
+    editCategory = true;
+    productDetails.gst = selectedTaxId;
+    const taxArray = $gst;
+    const foundTax = taxArray.find(
+      (category: any) => category.id === selectedTaxId
+    );
+    if (foundTax) {
+      selectedGst = foundTax.name;
+    }
+    console.log(productDetails)
+  }
+
 
   async function getCategory() {
     try {
@@ -197,7 +239,6 @@
       if (productDetails.selling_price == "") {
         validation.selling_price = ["This field may not be blank."];
       }
-      
 
       // if (productDetails.dimension == "") {
       //   validation.dimension = ["This field may not be blank."];
@@ -284,7 +325,6 @@
         const action = editForm ? "Product Updated" : "Product Created";
         toast(`${action} successfully!`);
         dispatch("cancel");
-
       }
     } catch (error: any) {
       const action = editForm ? "Product Updated" : "Product Created";
@@ -568,15 +608,32 @@
           </div>
         </div>
         <div class="grid gap-2">
-          <Label for="gst">GST</Label>
-          <Input
-              id="gst"
-              placeholder="Enter GST"
-              bind:value={productDetails.gst}
-              class={validation.gst ? "border-red-500" : ""}
-          />
-          <p class="text-red-500">{validation.gst ? validation.gst : ""}</p>
-      </div>
+          <Label for="security-level">GST</Label>
+          <Select.Root>
+            <Select.Trigger
+              class="input capitalize {validation.gst ? 'border-red-500' : ''}"
+            >
+              {selectedGst ? selectedGst : "Select a Gst"}
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Group>
+                {#each $gst as tax}
+                  <Select.Item
+                    value={tax.id}
+                    label={tax.name}
+                    class="capitalize card"
+                    on:click={() => handleTaxChange(tax.id)}
+                  >
+                    {tax.name}
+                  </Select.Item>
+                {/each}
+              </Select.Group>
+            </Select.Content>
+          </Select.Root>
+          <p class="text-red-500">
+            {validation.categories ? validation.categories : ""}
+          </p>
+        </div>
         <div class="grid gap-2">
           <Label for="area">MRP</Label>
           <div class="relative">
