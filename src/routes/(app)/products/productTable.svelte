@@ -551,7 +551,7 @@
         <Table.Cell>{data.preferred_gender}</Table.Cell>
       {/if}
       {#if hidableCoulumns[17].value}
-      <Table.Cell>{data.gst} %</Table.Cell>
+      <Table.Cell>{data.gst.slab} %</Table.Cell>
     {/if}
     {#if hidableCoulumns[18].value}
     <Table.Cell>{data.selling_price}</Table.Cell>
