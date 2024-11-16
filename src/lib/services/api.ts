@@ -1,23 +1,9 @@
 import axios from "axios";
-import Cookies from 'js-cookie'
 
 
 let onRejected = function (error) {
     return Promise.reject(error);
 };
-
-let csrfToken = '';
-
-const setTokenToHeaders = function (request) {
-    if (csrfToken) {
-        request.headers['X-CSRFToken'] = csrfToken
-    }
-}
-
-const getTokenFromResponse = function () {
-    csrfToken = Cookies.get('csrftoken');
-    return csrfToken
-}
 
 
 function createAxiosInstance() {
@@ -35,18 +21,28 @@ function createAxiosInstance() {
     axiosInstance.interceptors.request.use(
         function (request) {
             const method = request.method;
-            if (method !== "get" || method !== "delete") {
+            const token = sessionStorage.getItem('authToken');
+            if (token) {
+                request.headers['authorization'] = `Bearer ${token}`;
+            }
+
+            if (method !== "get" && method !== "delete") {
                 if (typeof FormData !== "undefined" && request.data instanceof FormData) {
                     request.headers["Content-Type"] = "multipart/form-data";
                 }
             }
-            setTokenToHeaders(request);
+
+            if (method == "get" || method == "delete") {
+                request.params = {
+                    ...request.params,
+                    ...request.data
+                }
+            }
             return request;
         }
     )
 
     axiosInstance.interceptors.response.use(function (response) {
-        getTokenFromResponse();
         return response;
     }, onRejected)
 

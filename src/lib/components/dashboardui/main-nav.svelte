@@ -13,7 +13,7 @@
       icon: "fa-house",
       
       items: [
-        { name: "Overview", page: "dashboard" },
+        { name: "Overview", page: "apps/dashboard" },
       ]
     },
     {
@@ -21,15 +21,15 @@
       icon: "fa-cart-shopping",
       //route: "/orders",
       items: [
-        { name: "Order Management", page: "orders" },
-        { name: "Returns and Refunds", page: "returns" },
-        { name: "Invoices", page: "invoices" },
+        { name: "Order Management", page: "apps/orders" },
+        { name: "Returns and Refunds", page: "apps/returns" },
+        { name: "Invoices", page: "apps/invoices" },
       ]
     },
     {
       name: "Products",
       icon: "fa-tag",
-      route: "/products",
+      route: "apps/products",
       items: [
 		{ name: "Products", page: "products" },
         { name: "Categories", page: "categories" },
@@ -45,9 +45,9 @@
       icon: "fa-user",
       
       items: [
-	    	{ name: "Customers", page: "customers" },
-        { name: "Customer Group", page: "customer-group" },
-        { name: "Review and Rating", page: "reviews" }
+	    	{ name: "Customers", page: "apps/customers" },
+        { name: "Customer Group", page: "apps/customer-group" },
+        { name: "Review and Rating", page: "apps/reviews" }
       ]
     },
      {
@@ -55,7 +55,7 @@
       icon: "fa-users-viewfinder",
       
       items: [
-	    	{ name: "Hero", page: "hero" },
+	    	{ name: "Hero", page: "apps/hero" },
       ]
     },
     // {
@@ -95,9 +95,9 @@
       name: "Settings",
       icon: "fa-gear",
       items: [
-        { name: "General Settings", page: "settings-general" },
-        { name: "Tax Configuration", page: "settings-tax" },
-        { name: "Admin Users", page: "settings-admin-users" },
+        { name: "General Settings", page: "apps/settings-general" },
+        { name: "Tax Configuration", page: "apps/settings-tax" },
+        { name: "Admin Users", page: "apps/settings-admin-users" },
       ]
     },
     // {

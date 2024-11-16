@@ -1,38 +1,29 @@
 <script lang="ts">
-    import {onMount} from "svelte";
-    import {isAuthenticated,checkAuthentication} from "$lib/services/guard";
     import {ModeWatcher} from "mode-watcher";
-    import {goto} from "$app/navigation";
     import LoadingIndicator from '$lib/components/LoadingIndicator.svelte';
     import {Toaster} from "$lib/components/ui/sonner";
+    import {isLoggedIn, UserStore} from "$lib/stores/data";
+    import type {LayoutData} from './$types';
+    import {setContext, onMount} from 'svelte';
+    import {writable} from 'svelte/store';
 
-    let unsubscribe: () => void; 
+    export let data: LayoutData;
+
+    const user = writable();
+    setContext('localUser', user);
+
+    user.set(data.user);
+    UserStore.set(data.loggedUser.user ?? null);
+    isLoggedIn.set(data.isLoggedIn);
+
     onMount(() => {
-
-       localStorage.setItem("lastVisitedRoute", window.location.pathname);
-     
-        (async () => {
-            const authStatus = await checkAuthentication(); // Assuming isAuthenticated is a Promise
-            console.log("authStatus :",authStatus)
-            if (authStatus) {
-            
-                const lastVisitedRoute = localStorage.getItem("lastVisitedRoute");
-                console.log("last visited rout :",lastVisitedRoute)
-                if (lastVisitedRoute) {
-                    goto(lastVisitedRoute);
-                } else {
-                    goto("/dashboard");
-                }
-                // goto('/dashboard'); // Navigate to the app route if authenticated
-            } else {
-                goto('/login'); // Navigate to the auth route if not authenticated
-            }
-        })();
-
-
-        return () => {
-            if (unsubscribe) unsubscribe(); // Ensure unsubscribe is called if it's defined
-        };
+        if (data.token) {
+            // Store the token securely, e.g., in session storage
+            sessionStorage.setItem("authToken", data.token);
+        } else {
+            // Remove the token from the storage when it's expired or invalid
+            sessionStorage.removeItem("authToken");
+        }
     });
     
 </script>

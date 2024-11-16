@@ -74,7 +74,7 @@
 		</DropdownMenu.Label>
 		<DropdownMenu.Separator />
 		<DropdownMenu.Group>
-			<DropdownMenu.Item on:click={() => goto('/settings-general')}>
+			<DropdownMenu.Item on:click={() => goto('/apps/settings-general')}>
 				Profile
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>

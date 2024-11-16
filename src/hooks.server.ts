@@ -2,9 +2,13 @@ import {handleLogto} from '@logto/sveltekit';
 
 export const handle = handleLogto(
     {
-        endpoint: 'https://auth.signupcasuals.com/',
-        appId: '0k8939bw5azjujy1v7hze',
-        appSecret: 'E8BDoSAuWzX7kj7HPAZIc9AttowM1R4p',
+        endpoint: import.meta.env.VITE_LOGTO_ENDPOINT,
+        appId: import.meta.env.VITE_LOGTO_APP_ID,
+        appSecret: import.meta.env.VITE_LOGTO_APP_SECRET,
+        resources: [import.meta.env.VITE_LOGTO_RESOURCE],
+        scopes: ['all']
     },
-    {encryptionKey: 'cM6mv5NyLWdOH6Tw3lf3JOZNob0VaOZg'} // Random-generated key
+    {
+        encryptionKey: import.meta.env.VITE_LOGTO_COOKIE_ENCRYPTION_KEY
+    } // Random-generated key
 );

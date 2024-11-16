@@ -5,8 +5,12 @@
     import Sun from "svelte-radix/Sun.svelte";
     import Moon from "svelte-radix/Moon.svelte";
     import {toggleMode} from "mode-watcher";
+    import type { PageData } from './$types';
+
 
     let Logo = logo;
+
+    export let data: PageData;
 
 </script>
 
@@ -45,17 +49,20 @@
         </form>
     </div>
 
-    <div
-            class="mt-10 sm:mx-auto bg-background text-foreground sm:w-full sm:max-w-sm"
-    >
-        <form class="space-y-6" method="POST" action="?/signOut">
-            <div>
-                <Button
-                        type="submit"
-                        class="flex w-full justify-center  px-3 py-1.5 text-sm font-semibold leading-6  shadow-sm  "
-                >Sign Out
-                </Button>
-            </div>
-        </form>
-    </div>
+    { #if data}
+
+        <div
+                class="mt-10 sm:mx-auto bg-background text-foreground sm:w-full sm:max-w-sm"
+        >
+            <form class="space-y-6" method="POST" action="?/signOut">
+                <div>
+                    <Button
+                            type="submit"
+                            class="flex w-full justify-center  px-3 py-1.5 text-sm font-semibold leading-6  shadow-sm  "
+                    >Sign Out
+                    </Button>
+                </div>
+            </form>
+        </div>
+    {/if}
 </div>

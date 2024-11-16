@@ -8,12 +8,12 @@ export const load: LayoutServerLoad = async ({locals, fetch}) => {
 
     const RESOURCE = import.meta.env.VITE_LOGTO_RESOURCE
 
-    if (locals && locals.user) {
+    if (locals.user) {
         try {
             token = await locals.logtoClient.getAccessToken(RESOURCE);
             const response = await fetch(
-                `/api/auth/me`,
-                {headers: {authorization: `Bearer ${token}`}}
+                `/api/account/user/me/`,
+                {headers: {Authorization: `Bearer ${token}`}}
             )
             loggedUser = await response.json();
             isLoggedIn = true;
