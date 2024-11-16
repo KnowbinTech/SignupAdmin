@@ -145,6 +145,7 @@
     attributeName: string,
     value: string
   ) {
+    console.log(attributeName, value)
     selectedAttributeValues.set(attributeName, value);
     selectedAttributeValues = new Map(selectedAttributeValues);
     const existingIndex = variantDetails.attributes.findIndex(
@@ -156,13 +157,14 @@
         variantDetails.attributes[existingIndex] = {
           attribute: attributeId,
           value: value,
+          name:attributeName,
           id: variantDetails.attributes[existingIndex].id,
         };
       } else {
         variantDetails.attributes[existingIndex].value = value;
       }
     } else {
-      variantDetails.attributes.push({ attribute: attributeId, value: value });
+      variantDetails.attributes.push({ attribute: attributeId, value: value , name:attributeName});
     }
   }
 
