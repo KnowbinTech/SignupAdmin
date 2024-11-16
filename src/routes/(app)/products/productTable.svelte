@@ -68,6 +68,7 @@
     { name: "Rating", value: false },
     { name: "Preferred Gender", value: false },
     { name: "GST", value: true },
+    { name: "Selling Price", value: true },
   ];
 
   const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
@@ -423,7 +424,7 @@
           <Table.Head>Updated By</Table.Head>
         {/if}
         {#if hidableCoulumns[12].value}
-          <Table.Head>Price</Table.Head>
+          <Table.Head>MRP</Table.Head>
         {/if}
         {#if hidableCoulumns[13].value}
           <Table.Head>Stock</Table.Head>
@@ -440,6 +441,9 @@
       {#if hidableCoulumns[17].value}
       <Table.Head>GST</Table.Head>
     {/if}
+    {#if hidableCoulumns[18].value}
+    <Table.Head>Selling Price</Table.Head>
+  {/if}
         <Table.Head>Action</Table.Head>
       </Table.Row>
     </Table.Header>
@@ -549,6 +553,9 @@
       {#if hidableCoulumns[17].value}
       <Table.Cell>{data.gst} %</Table.Cell>
     {/if}
+    {#if hidableCoulumns[18].value}
+    <Table.Cell>{data.selling_price}</Table.Cell>
+  {/if}
         <Table.Cell>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>
