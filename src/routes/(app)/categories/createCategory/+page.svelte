@@ -138,6 +138,12 @@
         validation.attribute_group = ["This field may not be blank."];
       }
 
+          // Check if there are any validation errors
+    if (Object.keys(validation).length > 0) {
+      toast(`Please fill the required fields`);
+      return; // Stop execution if there are validation errors
+    }
+
       const formData = new FormData();
 
       formData.append("name", categoryDetails.name);
