@@ -2,7 +2,6 @@
 	import * as DropdownMenu from "../ui/dropdown-menu";
 	import * as Avatar from "../ui/avatar";
 	import { Button } from "../ui/button";
-	import API from "$lib/services/api";
 	import { goto } from '$app/navigation';
 	import { UserStore } from "$lib/stores/data";
 	import { onMount } from "svelte";
@@ -13,44 +12,13 @@
 	function getUser()  {
 		UserStore.subscribe(userData => {
 			if (userData) {
-				user = userData;	
+				user = userData;
 			} else {
 				return null;
 			}
 		});
 	}
 	onMount(getUser);
-
-	async function logout() {
-  // Implement the logout logic here
-  try {
-    const response = await API.post('/account/user/logout/', {
-      method: 'POST',
-      data:{}
-      // headers: {
-      //   'Content-Type': 'application/json',
-      //   // Include other headers as needed, for example, authorization headers
-      // },
-      // // If your API expects a body, include it here. For logout, you might not need it.
-      // // body: JSON.stringify({ your: 'data' })
-    });
-    console.log('Response status:', response.status);
-
-    if (response.status === 200) {
-      goto('/login');
-      console.log('Logged out successfully');
-    }else {
-      throw new Error('Logout failed');   
-    }
-    
-    // Handle successful logout, e.g., redirecting the user or updating UI state
-  } catch (error) {
-    console.error('Logout error:', error);
-    // Handle errors, e.g., showing an error message to the user
-  }
-
-}
-
 
 </script>
 
@@ -79,8 +47,16 @@
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item on:click={logout}>
-			Log out
+		<DropdownMenu.Item>
+			<form class="space-y-6" method="POST" action="/apps/dashboard?/signOut">
+                <div>
+                    <button
+                            type="submit"
+                            class="flex text-sm font-semibold leading-6 shadow-sm"
+                    >Log out
+                    </button>
+                </div>
+            </form>
 		</DropdownMenu.Item>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

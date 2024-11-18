@@ -27,6 +27,11 @@
     });
     
 </script>
+
+<svelte:head>
+    <title>Manage Signup</title>
+</svelte:head>
+
 <div>
     <ModeWatcher/>
     <Toaster/>

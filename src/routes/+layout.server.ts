@@ -18,6 +18,7 @@ export const load: LayoutServerLoad = async ({locals, fetch}) => {
             loggedUser = await response.json();
             isLoggedIn = true;
         } catch (err) {
+            console.log('err : ', err)
             locals.user = null
             token = ""
         }
