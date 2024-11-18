@@ -61,10 +61,11 @@
   }
 
   if (productData2) {
+
     // variantDetails.product = productData2.id;
-    attribute_group = productData2.categories[0].attribute_group.id;
+    attribute_group = productData2.categories[0].attribute_group?.id;
   } else {
-    attribute_group = editData.product.categories[0].attribute_group.id;
+    attribute_group = editData.product.categories[0].attribute_group?.id;
   }
 
   // if (productID) {
