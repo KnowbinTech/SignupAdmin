@@ -55,12 +55,12 @@
       const selectedNewImages = newImages.filter(
         (file) => !deselectedNewImages.includes(file)
       );
-      console.log('selectedNewImages',selectedNewImages)
 
       for (const file of selectedNewImages) {
-        console.log('file',file)
+        const compressedFile = new File([file], file.name, { type: file.type });
+
         const formData = new FormData();
-        formData.append(`image`, file);
+        formData.append(`image`, compressedFile);
         formData.append("alt_text", "Product Image");
         formData.append("product", productId);
         await API.post("/products/product-image/create_record/", formData);
@@ -102,18 +102,15 @@
       bind:deselectedNewImages
     />
     <Dialog.Footer>
-      <Button 
-        variant="ghost" 
-        on:click={closeDialog}
-        disabled={isLoading}>Cancel</Button>
-      <Button 
-      on:click={saveImages}
-      disabled={isLoading}
-      class="relative">
-      {#if isLoading}
-        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
-      {/if}
-      save</Button>
+      <Button variant="ghost" on:click={closeDialog} disabled={isLoading}
+        >Cancel</Button
+      >
+      <Button on:click={saveImages} disabled={isLoading} class="relative">
+        {#if isLoading}
+          <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}
+        save</Button
+      >
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

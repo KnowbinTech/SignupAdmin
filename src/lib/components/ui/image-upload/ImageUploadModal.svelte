@@ -28,30 +28,29 @@
       for (const file of imageArray) {
         const image = await compressImage(file, true);
         if (image) {
-          newImages.push(file);
-          console.log('newImages inside forloop',newImages)
+          newImages.push(image);
         }
       }
 
       // Update the currentImages array with the compressed images
-    newImages.forEach((file, index) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        currentImages = [
-          ...currentImages,
-          { id: `temp_${index}`, image: reader.result as string },
-        ];
-      };
-      reader.readAsDataURL(file);
-    });
+      newImages.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          currentImages = [
+            ...currentImages,
+            { id: `temp_${index}`, image: reader.result as string },
+          ];
+        };
+        reader.readAsDataURL(file);
+      });
     }
   }
 
-  function deselectNewImage( index: number) {
+  function deselectNewImage(index: number) {
     let temporaryFile = currentImages[index].id;
-    let extractedIndex = parseInt(temporaryFile.split('_')[1], 10);
+    let extractedIndex = parseInt(temporaryFile.split("_")[1], 10);
 
-    let file = newImages[extractedIndex]
+    let file = newImages[extractedIndex];
     if (!file) return; // Exit the function if file is undefined
 
     deselectedNewImages = [...deselectedNewImages, file];
