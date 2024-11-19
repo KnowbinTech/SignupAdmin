@@ -55,8 +55,10 @@
       const selectedNewImages = newImages.filter(
         (file) => !deselectedNewImages.includes(file)
       );
+      console.log('selectedNewImages',selectedNewImages)
 
       for (const file of selectedNewImages) {
+        console.log('file',file)
         const formData = new FormData();
         formData.append(`image`, file);
         formData.append("alt_text", "Product Image");
