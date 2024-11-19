@@ -10,10 +10,12 @@
   import { productDetailsStore } from "$lib/stores/data";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { LoaderCircle } from "lucide-svelte";
+  import { writable } from "svelte/store";
   import { any } from "zod";
   import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
+  const reactiveImages = writable([]);
 
   interface AttributeDetail {
     id: number;
@@ -36,13 +38,14 @@
   let unsubscribe: () => void;
   let validation: any = {};
   let isLoading = false;
+  let editImage: boolean = false;
 
   let variantDetails: any = {
     product: "",
     attributes: [],
     stock: "",
     selling_price: "",
-    images: "",
+    images: [],
   };
 
   // if (editForm) {
@@ -50,14 +53,16 @@
   // }
 
   if (editForm) {
-    variantDetails = { ...editData };
+    variantDetails = { 
+      ...editData,
+      images: Array.isArray(editData.images) ? editData.images : [] };
   } else {
     variantDetails = {
       product: { id: productData2.id },
       attributes: [],
       stock: "",
       selling_price: "",
-      images: "",
+      images: [],
     };
   }
 
@@ -212,8 +217,11 @@
         form.append("stock", variantDetails.stock);
         form.append("selling_price", variantDetails.selling_price);
         form.append("attributes", JSON.stringify(variantDetails.attributes));
-        if (updateImage && variantDetails.images) {
-          form.append("images", variantDetails.images);
+
+        if (editImage) {
+          for (let i = 0; i < variantDetails.images.length; i++) {
+            form.append("images", variantDetails.images[i]);
+          }
         }
 
         const url = editForm
@@ -245,13 +253,38 @@
   }
 
   async function uploadAvatar() {
-    if (imageUpload.files[0].size / 1024 > 45) {
-      variantDetails.images = await compressImage(imageUpload.files[0], true);
-      variantDetails.images ? (updateImage = true) : "";
-    } else {
-      variantDetails.images = imageUpload.files[0];
-      updateImage = true;
+    editImage = true;
+    if(imageUpload.files && imageUpload.files.length > 0) {
+      for(let i = 0; i < imageUpload.files.length; i++) {
+        if (imageUpload.files[0].size / 1024 > 45) {
+          let image = 
+          await compressImage(
+            imageUpload.files[i], 
+            true
+          );
+          variantDetails.images.push(image)
+        } else {
+          variantDetails.images.push(imageUpload.files[i]);
+        }
+      }
+      reactiveImages.set(variantDetails.images);
+
+      const img: HTMLImageElement | null = document.getElementById(
+        "selected-logo"
+      ) as HTMLImageElement;
+      if(img) {
+        img.src = window.URL.createObjectURL(
+          variantDetails.images[variantDetails.images.length - 1]
+        );
+      }
     }
+  }
+
+  function removeImage(index: any) {
+    const newImages = [...$reactiveImages];
+    newImages.splice(index, 1);
+    reactiveImages.set(newImages);
+    variantDetails.images = newImages;
   }
 
   function isColorCode(value: string): boolean {
@@ -372,31 +405,46 @@
       </p>
     </div>
     {#if !editForm}
-      <div class="flex items-center justify-evenly gap-2">
         <Button
           type="button"
-          class="btn flex gap-2 items-center bg-indigo-500 text-white text-xs"
+          variant="outline"
+          id="area"
           on:click={pickAvatar}
         >
           <i class="fa-solid fa-image text-sm"></i>
           Upload Variant image
         </Button>
-        <img
-          id="selected-logo"
-          alt=""
-          class={variantDetails.images ? "showImg" : "hideImg"}
-          src={updateImage
-            ? window.URL.createObjectURL(variantDetails.images)
-            : variantDetails.images}
-        />
         <input
           type="file"
           id="file-input"
-          hidden
           bind:this={imageUpload}
-          on:input={uploadAvatar}
+          hidden
+          multiple
           accept="image/png, image/jpeg, image/webp"
+          on:input={uploadAvatar}
         />
+      <div class="flex flex-col gap-2">
+        <div style="display:flex; justify-content: center;
+             align-items:center; margin-top:10px;">
+          {#if variantDetails.images.length > 0}
+          <div class="image-preview-container">
+            {#each $reactiveImages as image, index}
+            <div class="image-container">
+              <img 
+                id="selected-logo-{index}"
+                class="selected-logo w-32 h-32 object-cover rounded-md"
+                alt="varient{index}"
+                src={window.URL.createObjectURL(image)}
+              />
+              <button class="remove-btn"
+                on:click={() => removeImage(index)}>
+                &times;
+              </button>
+            </div>
+            {/each}
+          </div>
+          {/if}
+        </div>
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
@@ -446,5 +494,38 @@
     flex: none;
     border-radius: 20px;
     object-fit: cover;
+  }
+
+  .image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .selected-logo {
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .image-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
   }
 </style>

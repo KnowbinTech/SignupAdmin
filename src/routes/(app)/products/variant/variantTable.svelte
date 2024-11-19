@@ -246,13 +246,17 @@
       <Table.Row>
           <Table.Cell>{data.product.name}</Table.Cell>
         {#if hidableCoulumns[0].value}
-          <Table.Cell>
-            <img
-              src={`${baseUrl}${data.images[0].image}`}
-              alt="Logo"
-              class="w-12 h-12 object-cover rounded-full"
-            /></Table.Cell
-          >
+          {#if data.images && data.images.length > 0}
+            <Table.Cell>
+              <img
+                src={`${baseUrl}${data.images[0].image}`}
+                alt="variant_image"
+                class="w-12 h-12 object-cover rounded-full"
+              /></Table.Cell
+            >
+            {:else}
+            <span class="text-gray-500">No Image</span>
+          {/if}
         {/if}
         {#if hidableCoulumns[1].value}
           <Table.Cell>
