@@ -3,6 +3,7 @@ import imageCompression from 'browser-image-compression';
 export const compressImage = async (file: File, useQualityCompression: boolean) => {
     try {
         let options;
+        console.log('file', file)
 
         if (useQualityCompression) {
 
@@ -50,7 +51,8 @@ export const compressImage = async (file: File, useQualityCompression: boolean) 
         }
 
         // Compress the image using the selected options
-        const compressedFile = await imageCompression(file, options);
+        const compressedBlob = await imageCompression(file, options);
+        const compressedFile = new File([compressedBlob], file.name, { type: file.type });
         return compressedFile;
     } catch (error) {
         console.error('Image compression error:', error);

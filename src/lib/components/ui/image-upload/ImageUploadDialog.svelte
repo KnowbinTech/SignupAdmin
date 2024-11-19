@@ -57,10 +57,10 @@
       );
 
       for (const file of selectedNewImages) {
-        const compressedFile = new File([file], file.name, { type: file.type });
+        
 
         const formData = new FormData();
-        formData.append(`image`, compressedFile);
+        formData.append(`image`, file);
         formData.append("alt_text", "Product Image");
         formData.append("product", productId);
         await API.post("/products/product-image/create_record/", formData);
