@@ -57,7 +57,6 @@
   const reactiveImages = writable([]);
 
   if (editForm) {
-    console.log(editData);
 
     productDetails = editData;
 
@@ -142,7 +141,6 @@ onMount(()=>{
     if (foundTax) {
       selectedGst = foundTax.name;
     }
-    console.log(productDetails)
   }
 
 
@@ -276,12 +274,10 @@ onMount(()=>{
         validation.dimension ||
         validation.tags
       ) {
-        console.log(validation);
 
         toast(`Please fill the required field`);
       } else {
         const form = new FormData();
-        console.log(productDetails.is_disabled);
         if (!editBrand) {
           productDetails.brand = productDetails.brand.id;
         }
@@ -377,7 +373,6 @@ onMount(()=>{
           productDetails.images[productDetails.images.length - 1]
         );
       }
-      console.log("productDetails.images after update:", productDetails.images);
     }
   }
   function removeImage(index: any) {
