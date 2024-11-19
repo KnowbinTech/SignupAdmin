@@ -11,6 +11,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { LoaderCircle } from "lucide-svelte";
   import { any } from "zod";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -61,7 +62,6 @@
   }
 
   if (productData2) {
-
     // variantDetails.product = productData2.id;
     attribute_group = productData2.categories[0].attribute_group?.id;
   } else {
@@ -104,7 +104,6 @@
 
   async function handleAttributeGroupData() {
     try {
-      console.log("attrbuteGroup here:", attribute_group);
       if (attribute_group) {
         await fetchAttributegroup();
         if (attributegroup) {
@@ -146,7 +145,6 @@
     attributeName: string,
     value: string
   ) {
-    console.log(attributeName, value)
     selectedAttributeValues.set(attributeName, value);
     selectedAttributeValues = new Map(selectedAttributeValues);
     const existingIndex = variantDetails.attributes.findIndex(
@@ -158,14 +156,18 @@
         variantDetails.attributes[existingIndex] = {
           attribute: attributeId,
           value: value,
-          name:attributeName,
+          name: attributeName,
           id: variantDetails.attributes[existingIndex].id,
         };
       } else {
         variantDetails.attributes[existingIndex].value = value;
       }
     } else {
-      variantDetails.attributes.push({ attribute: attributeId, value: value , name:attributeName});
+      variantDetails.attributes.push({
+        attribute: attributeId,
+        value: value,
+        name: attributeName,
+      });
     }
   }
 
@@ -200,11 +202,10 @@
       if (
         validation.attributes ||
         validation.stock ||
-        validation.selling_price 
+        validation.selling_price
       ) {
         toast(`Please fill the required field`);
       } else {
-        // console.log("Variant Details before API call:", variantDetails);
         const form = new FormData();
         const pro = variantDetails.product.id;
         form.append("product", variantDetails.product.id);
@@ -215,8 +216,6 @@
           form.append("images", variantDetails.images);
         }
 
-        console.log("image uploading:", variantDetails.images);
-        console.log("attributes:", variantDetails.attributes);
         const url = editForm
           ? `/products/variant/${variantDetails.id}/update_record/`
           : "/products/variant/create_record/";
@@ -246,13 +245,18 @@
   }
 
   async function uploadAvatar() {
-    updateImage = true;
     variantDetails.images = imageUpload.files[0];
-    console.log("New image:", variantDetails.images);
+    if (imageUpload.files[0].size / 1024 > 45) {
+      variantDetails.images = await compressImage(imageUpload.files[0], true);
+      variantDetails.images ? (updateImage = true) : "";
+    } else {
+      variantDetails.images = imageUpload.files[0];
+      updateImage = true;
+    }
   }
 
   function isColorCode(value: string): boolean {
-    return value.startsWith('#') && /^#[0-9A-Fa-f]{6}$/.test(value);
+    return value.startsWith("#") && /^#[0-9A-Fa-f]{6}$/.test(value);
   }
 
   function cancelModel() {
@@ -279,31 +283,39 @@
         </div>
         <div class="mb-3 pl-4" style="min-width: 150px; max-width: 250px;">
           <Select.Root>
-            <Select.Trigger class="input capitalize {validation.attributes ? 'border-red-500' : ''}">
+            <Select.Trigger
+              class="input capitalize {validation.attributes
+                ? 'border-red-500'
+                : ''}"
+            >
               {#if selectedAttributeValues.has(detail.name)}
                 <div class="flex items-center gap-2">
                   {#if isColorCode(selectedAttributeValues.get(detail.name))}
-                    <div 
+                    <div
                       class="w-4 h-4 rounded-full border border-gray-300"
-                      style="background-color: {selectedAttributeValues.get(detail.name)}"
+                      style="background-color: {selectedAttributeValues.get(
+                        detail.name
+                      )}"
                     ></div>
                   {/if}
                   {selectedAttributeValues.get(detail.name)}
                 </div>
+              {:else if variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
+                <div class="flex items-center gap-2">
+                  {#if isColorCode(variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value)}
+                    <div
+                      class="w-4 h-4 rounded-full border border-gray-300"
+                      style="background-color: {variantDetails.attributes.find(
+                        (attr) => attr.attribute === detail.id
+                      )?.value}"
+                    ></div>
+                  {/if}
+                  {variantDetails.attributes.find(
+                    (attr) => attr.attribute === detail.id
+                  )?.value}
+                </div>
               {:else}
-                {#if variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
-                  <div class="flex items-center gap-2">
-                    {#if isColorCode(variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value)}
-                      <div 
-                        class="w-4 h-4 rounded-full border border-gray-300"
-                        style="background-color: {variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}"
-                      ></div>
-                    {/if}
-                    {variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
-                  </div>
-                {:else}
-                  Select an Attribute
-                {/if}
+                Select an Attribute
               {/if}
             </Select.Trigger>
             <Select.Content>
@@ -316,21 +328,23 @@
                     on:click={() =>
                       handleAttributeValueChange(detail.id, detail.name, value)}
                   >
-                  <div class="flex items-center gap-2">
-                    {#if isColorCode(value)}
-                      <div 
-                        class="w-4 h-4 rounded-full border border-gray-300"
-                        style="background-color: {value}"
-                      ></div>
-                    {/if}
-                    {value}
-                  </div>
+                    <div class="flex items-center gap-2">
+                      {#if isColorCode(value)}
+                        <div
+                          class="w-4 h-4 rounded-full border border-gray-300"
+                          style="background-color: {value}"
+                        ></div>
+                      {/if}
+                      {value}
+                    </div>
                   </Select.Item>
                 {/each}
               </Select.Group>
             </Select.Content>
           </Select.Root>
-        <p class="text-red-500">{validation.attributes ? validation.attributes : ""}</p>
+          <p class="text-red-500">
+            {validation.attributes ? validation.attributes : ""}
+          </p>
         </div>
       </div>
     {/each}
@@ -341,7 +355,7 @@
         type="number"
         bind:value={variantDetails.stock}
         placeholder="Stock"
-        class="{validation.stock ? 'border-red-500' : ''}"
+        class={validation.stock ? "border-red-500" : ""}
       />
       <p class="text-red-500">{validation.stock ? validation.stock : ""}</p>
     </div>
@@ -352,9 +366,11 @@
         type="number"
         bind:value={variantDetails.selling_price}
         placeholder="Selling Price"
-        class="{validation.selling_price ? 'border-red-500' : ''}"
+        class={validation.selling_price ? "border-red-500" : ""}
       />
-      <p class="text-red-500">{validation.selling_price ? validation.selling_price : ""}</p>
+      <p class="text-red-500">
+        {validation.selling_price ? validation.selling_price : ""}
+      </p>
     </div>
     {#if !editForm}
       <div class="flex items-center justify-evenly gap-2">
@@ -385,32 +401,36 @@
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button 
-        type="button" 
-        variant="ghost" 
+      <Button
+        type="button"
+        variant="ghost"
         on:click={cancelModel}
-        disabled={isLoading}
-        >Cancel</Button>
+        disabled={isLoading}>Cancel</Button
+      >
       {#if editForm === false}
-      <Button 
-        type="submit" 
-        on:click={createVariant}
-        disabled={isLoading}
-        class="relative">
-        {#if isLoading}
-        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
-        {/if}
-        Save</Button>
+        <Button
+          type="submit"
+          on:click={createVariant}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save</Button
+        >
       {:else}
-      <Button 
-        type="submit" 
-        on:click={createVariant}
-        disabled={isLoading}
-        class="relative">
-        {#if isLoading}
-        <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
-        {/if}
-        Update</Button>
+        <Button
+          type="submit"
+          on:click={createVariant}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update</Button
+        >
       {/if}
     </Dialog.Footer>
   </Dialog.Content>
