@@ -10,6 +10,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import { LoaderCircle } from "lucide-svelte";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -46,8 +47,18 @@
   }
 
   async function uploadAvatar() {
-    updateImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
+      if (imageUpload.files[0].size / 1024 > 45) {
+        collectionDetails.feature_image = await compressImage(
+          imageUpload.files[0],
+          false
+        );
+        collectionDetails.feature_image ? (updateImage = true) : "";
+      } else {
+        collectionDetails.feature_image = imageUpload.files[0];
+        updateImage = true;
+      }
+
       collectionDetails.feature_image = imageUpload.files[0];
       const img: HTMLImageElement | null = document.getElementById(
         "selected-feature_image"
@@ -62,7 +73,7 @@
     if (isLoading) return;
 
     try {
-      isLoading =true;
+      isLoading = true;
       validation = {};
 
       if (collectionDetails.name == "") {
@@ -94,24 +105,23 @@
         toast(`Please fill the required field`);
       }
 
-        if (editForm) {
-          await API.put(url, form);
-        } else {
-          await API.post(url, form);
-        }
+      if (editForm) {
+        await API.put(url, form);
+      } else {
+        await API.post(url, form);
+      }
 
-        dispatch("newCollection");
-        const action = editForm ? "Collection Updated" : "Collection Created";
-        toast(`${action} successfully!`);
-        dispatch("cancel");
-
+      dispatch("newCollection");
+      const action = editForm ? "Collection Updated" : "Collection Created";
+      toast(`${action} successfully!`);
+      dispatch("cancel");
     } catch (error: any) {
       const action = editForm ? "Update Collection" : "Create Collection";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
     } finally {
-      isLoading =false;
+      isLoading = false;
     }
   }
 
@@ -191,7 +201,9 @@
         class:hideImg={!collectionDetails.feature_image}
         src={updateImage
           ? window.URL.createObjectURL(collectionDetails.feature_image)
-          : (editForm ?`${baseUrl}${collectionDetails.feature_image}`: '')}
+          : editForm
+            ? `${baseUrl}${collectionDetails.feature_image}`
+            : ""}
       />
 
       <input
@@ -199,42 +211,44 @@
         id="file-input"
         bind:this={imageUpload}
         hidden
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp"
         on:change={uploadAvatar}
       />
     </div>
     <Dialog.Footer class="justify-between space-x-2">
-      <Button 
-        type="button" 
-        variant="ghost" 
+      <Button
+        type="button"
+        variant="ghost"
         on:click={() => dispatch("cancel")}
         disabled={isLoading}
-        >
+      >
         Cancel
-        </Button>
-        {#if editForm === false}
-        <Button 
-          type="submit" 
+      </Button>
+      {#if editForm === false}
+        <Button
+          type="submit"
           on:click={createCollection}
           disabled={isLoading}
-          class="relative">
+          class="relative"
+        >
           {#if isLoading}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
           Save
         </Button>
-        {:else}
-        <Button 
-          type="submit" 
+      {:else}
+        <Button
+          type="submit"
           on:click={createCollection}
           disabled={isLoading}
-          class="relative">
+          class="relative"
+        >
           {#if isLoading}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
           Update
         </Button>
-        {/if}
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
