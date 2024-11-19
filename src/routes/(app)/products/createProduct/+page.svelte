@@ -710,7 +710,8 @@ onMount(()=>{
           />
         </div>
         <div
-          style="display:flex; justify-content: center; align-items: center; margin-top: 10px;"
+          style="display:flex; justify-content: center; 
+          align-items: center; margin-top: 10px;"
         >
           {#if productDetails.images.length > 0}
             <div class="image-preview-container">
