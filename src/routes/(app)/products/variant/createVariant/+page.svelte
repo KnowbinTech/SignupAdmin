@@ -245,7 +245,6 @@
   }
 
   async function uploadAvatar() {
-    variantDetails.images = imageUpload.files[0];
     if (imageUpload.files[0].size / 1024 > 45) {
       variantDetails.images = await compressImage(imageUpload.files[0], true);
       variantDetails.images ? (updateImage = true) : "";
@@ -396,7 +395,7 @@
           hidden
           bind:this={imageUpload}
           on:input={uploadAvatar}
-          accept="image/png, image/jpeg"
+          accept="image/png, image/jpeg, image/webp"
         />
       </div>
     {/if}
