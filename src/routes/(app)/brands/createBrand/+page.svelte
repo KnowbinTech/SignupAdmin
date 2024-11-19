@@ -46,14 +46,12 @@
 
   async function uploadAvatar() {
     if (imageUpload.files && imageUpload.files.length > 0) {
-      if(imageUpload.files[0].size/1024 > 45){
-        brandDetails.logo = await compressImage(imageUpload.files[0])
-        brandDetails.logo ? updateImage = true:'';
-              }
-      else{
-              brandDetails.logo = imageUpload.files[0];
-                    updateImage = true;
-
+      if (imageUpload.files[0].size / 1024 > 45) {
+        brandDetails.logo = await compressImage(imageUpload.files[0], false);
+        brandDetails.logo ? (updateImage = true) : "";
+      } else {
+        brandDetails.logo = imageUpload.files[0];
+        updateImage = true;
       }
     }
   }
@@ -97,7 +95,6 @@
         const action = editForm ? "Brand Updated" : "Brand Created";
         toast(`${action} successfully!`);
         dispatch("cancel");
-
       }
     } catch (error: any) {
       const action = editForm ? "Update Brand" : "Create Brand";
@@ -157,7 +154,9 @@
         class:hideImg={!brandDetails.logo}
         src={updateImage
           ? window.URL.createObjectURL(brandDetails.logo)
-          : (editForm ?`${baseUrl}${brandDetails.logo}`: '')}
+          : editForm
+            ? `${baseUrl}${brandDetails.logo}`
+            : ""}
       />
 
       <input
@@ -165,21 +164,20 @@
         id="file-input"
         bind:this={imageUpload}
         hidden
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp "
         on:change={uploadAvatar}
       />
     </div>
     <Dialog.Footer>
-      <Button 
-        type="button" 
-        variant="ghost" 
+      <Button
+        type="button"
+        variant="ghost"
         on:click={cancelModel}
-        disabled={isLoading}
-        >Cancel</Button
+        disabled={isLoading}>Cancel</Button
       >
       {#if editForm === false}
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           on:click={createBrand}
           disabled={isLoading}
           class="relative"
@@ -190,8 +188,8 @@
           Save
         </Button>
       {:else}
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           on:click={createBrand}
           disabled={isLoading}
           class="relative"
