@@ -484,7 +484,7 @@
 </Dialog.Root>
 
 <style>
-  .hideImg {
+  /* .hideImg {
     visibility: hidden;
   }
   .showImg {
@@ -494,7 +494,7 @@
     flex: none;
     border-radius: 20px;
     object-fit: cover;
-  }
+  } */
 
   .image-preview-container {
     display: flex;
