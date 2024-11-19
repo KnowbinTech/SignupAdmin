@@ -11,6 +11,7 @@
   import { toast } from "svelte-sonner";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { LoaderCircle } from "lucide-svelte";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -352,7 +353,18 @@ onMount(()=>{
     editImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       for (let i = 0; i < imageUpload.files.length; i++) {
+        
+        if (imageUpload.files[i].size / 1024 > 45) {
+          let image = await compressImage(
+          imageUpload.files[i],
+          true
+        );
+        productDetails.images.push(image)
+      } else {
         productDetails.images.push(imageUpload.files[i]);
+      }
+
+        
       }
       // Update the reactiveImages store
       reactiveImages.set(productDetails.images);
@@ -698,7 +710,7 @@ onMount(()=>{
             bind:this={imageUpload}
             hidden
             multiple
-            accept="image/png, image/jpeg"
+            accept="image/png, image/jpeg, image/webp"
             on:change={uploadAvatar}
           />
         </div>
