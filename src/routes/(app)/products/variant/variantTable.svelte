@@ -26,6 +26,8 @@
   let showDeleteModal = false;
   let deletingVariant: any;
 
+  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
+
   function isHexColor(str: string) {
     return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(str);
   }
@@ -246,7 +248,7 @@
         {#if hidableCoulumns[0].value}
           <Table.Cell>
             <img
-              src={data.image}
+              src={`${baseUrl}${data.images[0].image}`}
               alt="Logo"
               class="w-12 h-12 object-cover rounded-full"
             /></Table.Cell
