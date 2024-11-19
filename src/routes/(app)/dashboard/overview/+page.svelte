@@ -9,7 +9,6 @@
   import Package from "lucide-svelte/icons/package";
   import {
     DashboardMainNav,
-    Overview,
     RecentSales,
     Search,
     UserNav,
@@ -32,6 +31,7 @@
     CustomerRetention,
     MonthlyCustomerCount,
   } from "$lib/types/dashboard";
+  import { Bar } from "$lib/components/charts/index.js";
 
   // Subscribe to stores
   let dashboardData: DashboardData;
@@ -192,7 +192,7 @@
           <Card.Title>Monthly Sales</Card.Title>
         </Card.Header>
         <Card.Content>
-          <Overview data={dashboardData?.sales} />
+          <Bar data={dashboardData?.sales} />
         </Card.Content>
       </Card.Root>
 
