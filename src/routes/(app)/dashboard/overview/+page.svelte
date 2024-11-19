@@ -9,6 +9,7 @@
   import Package from "lucide-svelte/icons/package";
   import {
     DashboardMainNav,
+    Overview,
     RecentSales,
     Search,
     UserNav,
@@ -192,7 +193,7 @@
           <Card.Title>Monthly Sales</Card.Title>
         </Card.Header>
         <Card.Content>
-          <Bar data={dashboardData?.sales} />
+          <Overview data={dashboardData?.sales} />
         </Card.Content>
       </Card.Root>
 
