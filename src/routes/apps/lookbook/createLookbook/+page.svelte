@@ -9,6 +9,7 @@
   import { toast } from "svelte-sonner";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Switch } from "$lib/components/ui/switch/index.js";
+  import { LoaderCircle } from "lucide-svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -25,6 +26,7 @@
   };
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
+  let isLoading = false;
 
   if (editForm) {
     lookbookDetails = editData;
@@ -57,7 +59,10 @@
   }
 
   async function createCollection() {
+    if (isLoading) return;
+
     try {
+      isLoading =true;
       validation = {};
 
       if (lookbookDetails.name == "") {
@@ -87,7 +92,8 @@
 
       if (validation.name || validation.description || validation.tags) {
         toast(`Please fill the required field`);
-      } else {
+      } 
+
         if (editForm) {
           await API.put(url, form);
         } else {
@@ -97,12 +103,14 @@
         dispatch("newLookbook");
         const action = editForm ? "Lookbook Updated" : "Lookbook Created";
         toast(`${action} successfully!`);
-      }
+
     } catch (error: any) {
       const action = editForm ? "Update Lookbook" : "Create Lookbook";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -195,10 +203,36 @@
       />
     </div>
     <Dialog.Footer class="justify-between space-x-2">
-      <Button type="button" variant="ghost" on:click={() => dispatch("cancel")}
+      <Button 
+        type="button" 
+        variant="ghost" 
+        on:click={() => dispatch("cancel")}
+        disabled={isLoading}
         >Cancel</Button
       >
-      <Button type="submit" on:click={createCollection}>Save</Button>
+      {#if editForm === false}
+        <Button 
+          type="submit" 
+          on:click={createCollection}
+          disabled={isLoading}
+          class="relative">
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save
+        </Button>
+        {:else}
+        <Button 
+            type="submit" 
+            on:click={createCollection}
+            disabled={isLoading}
+            class="relative">
+            {#if isLoading}
+              <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+            {/if}
+            Update
+        </Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

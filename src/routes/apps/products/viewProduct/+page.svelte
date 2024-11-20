@@ -24,7 +24,6 @@
     dispatch("cancel");
   }
 
-
 </script>
 
         <Dialog.Root open={true} onOpenChange={cancelModel} preventScroll={true}>

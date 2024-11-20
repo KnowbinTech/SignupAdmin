@@ -11,12 +11,10 @@
   import { toast } from "svelte-sonner";
   import ConfirmDeleteModal from "$lib/components/ui/confirmation-modal/ConfirmDeleteModal.svelte";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
-  import CreateVarient from "./createVariant/+page.svelte";
+  import { variantFormStore } from '$lib/stores/variantStore';
 
   let dispatch = createEventDispatcher();
 
-  export let showForm: boolean = false;
-  // variables to handle pagination and table details
   let page: number = 1;
   let totalItems: number;
   let per_page: number = 10;
@@ -28,11 +26,12 @@
   let showDeleteModal = false;
   let deletingVariant: any;
 
-  let editData: any;
-  let editForm: boolean = false;
-  let productData2: any;
+  $: {
+    if ($variantFormStore.refreshTrigger) {
+      getVariant();
+    }
+  }
 
-  //url params
   let productId: any;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -44,7 +43,6 @@
     } else {
       productId = sessionStorage.getItem('productId');
     }
-   //url params close
 
   let hidableCoulumns: any[] = [
     { name: "Image", value: true },
@@ -82,17 +80,7 @@
   }
 
   function onEdit(data: any) {
-    console.log("Edit:", data);
-    editData = data;
-    showForm = true;
-    editForm = true;
-  }
-
-  function handleNewVariant() {
-    editData = null;
-    editForm = false;
-    showForm = false;
-    getVariant();
+    variantFormStore.openEdit(data, productId);
   }
 
   function onDelete(id: any) {
@@ -119,13 +107,6 @@
   function closeDeleteModal() {
     showDeleteModal = false;
   }
-
-  function colseVariant(){
-      editData = null;
-      editForm = false;
-      showForm = false;
-      dispatch ("cancel");
-    }
 
   onMount(() => {
     getVariant();
@@ -160,18 +141,6 @@
       attribute={deletingVariant.name}
       on:confirm={confirmDelete}
       on:cancel={closeDeleteModal}
-    />
-  {/if}
-</div>
-
-<div class="abc">
-  {#if showForm}
-    <CreateVarient
-      {productData2}
-      {editData}
-      {editForm}
-      on:cancel={colseVariant}
-      on:newVariant={() => handleNewVariant()}
     />
   {/if}
 </div>
