@@ -6,10 +6,14 @@
     <CircleSlash2 class="size-1/4"/>
     <h1>Unauthorized</h1>
     <p>You are not authorized to access this application.</p>
-    <form method="post" action="/apps?/signOut">
-        <Button type="submit" variant="default">
-            Logout
-        </Button>
+    <form class="space-y-6" method="POST" action="/apps/dashboard?/signOut">
+        <div>
+            <button
+                    type="submit"
+                    class="flex text-sm font-semibold leading-6 shadow-sm"
+            >Logout
+            </button>
+        </div>
     </form>
 </main>
 

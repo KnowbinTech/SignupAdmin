@@ -53,7 +53,7 @@
                     <button
                             type="submit"
                             class="flex text-sm font-semibold leading-6 shadow-sm"
-                    >Log out
+                    >Logout
                     </button>
                 </div>
             </form>
