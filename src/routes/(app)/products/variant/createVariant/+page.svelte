@@ -16,6 +16,8 @@
 
   const dispatch = createEventDispatcher();
   const reactiveImages = writable([]);
+  const existingImages = writable([]); 
+  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   interface AttributeDetail {
     id: number;
@@ -46,6 +48,7 @@
     stock: "",
     selling_price: "",
     images: [],
+    existingImages: [],
   };
 
   // if (editForm) {
@@ -55,7 +58,10 @@
   if (editForm) {
     variantDetails = { 
       ...editData,
-      images: Array.isArray(editData.images) ? editData.images : [] };
+      existingImages: Array.isArray(editData.images) ? editData.images : [],
+      images: [] };
+      existingImages.set(variantDetails.existingImages);
+      console.log("Existing Images:", variantDetails.existingImages);
   } else {
     variantDetails = {
       product: { id: productData2.id },
@@ -63,6 +69,7 @@
       stock: "",
       selling_price: "",
       images: [],
+      existingImages: [],
     };
   }
 
@@ -218,7 +225,12 @@
         form.append("selling_price", variantDetails.selling_price);
         form.append("attributes", JSON.stringify(variantDetails.attributes));
 
-        if (editImage) {
+        if (editForm) {
+          const existingImageIds = variantDetails.existingImages.map(img => img.id);
+          form.append("existing_images", JSON.stringify(existingImageIds));
+        }
+
+        if (variantDetails.images.length > 0) {
           for (let i = 0; i < variantDetails.images.length; i++) {
             form.append("images", variantDetails.images[i]);
           }
@@ -255,36 +267,36 @@
   async function uploadAvatar() {
     editImage = true;
     if(imageUpload.files && imageUpload.files.length > 0) {
+      const newImages = [];
       for(let i = 0; i < imageUpload.files.length; i++) {
-        if (imageUpload.files[0].size / 1024 > 45) {
-          let image = 
-          await compressImage(
-            imageUpload.files[i], 
-            true
-          );
-          variantDetails.images.push(image)
+        const file = imageUpload.files[i];
+        if (file.size / 1024 > 45) {
+          const compressedImage = await compressImage(file, true);
+          newImages.push(compressedImage);
         } else {
-          variantDetails.images.push(imageUpload.files[i]);
+          newImages.push(file);
         }
       }
-      reactiveImages.set(variantDetails.images);
 
-      const img: HTMLImageElement | null = document.getElementById(
-        "selected-logo"
-      ) as HTMLImageElement;
-      if(img) {
-        img.src = window.URL.createObjectURL(
-          variantDetails.images[variantDetails.images.length - 1]
-        );
-      }
+      variantDetails.images = [...variantDetails.images, ...newImages]
+      reactiveImages.set(variantDetails.images);
     }
   }
 
-  function removeImage(index: any) {
+  function removeImage(index: number) {
     const newImages = [...$reactiveImages];
     newImages.splice(index, 1);
     reactiveImages.set(newImages);
     variantDetails.images = newImages;
+  }
+
+  function removeExistingImage(index: number) {
+    const newExistingImage = [...$existingImages];
+    const removedImage = newExistingImage[index];
+    console.log("Removing image:", removedImage);
+    newExistingImage.splice(index, 1);
+    existingImages.set(newExistingImage);
+    variantDetails.existingImages = newExistingImage;
   }
 
   function isColorCode(value: string): boolean {
@@ -404,7 +416,8 @@
         {validation.selling_price ? validation.selling_price : ""}
       </p>
     </div>
-    {#if !editForm}
+    <!-- {#if !editForm} -->
+    <div class="grid grid-cols-2 gap-4">
         <Button
           type="button"
           variant="outline"
@@ -423,12 +436,59 @@
           accept="image/png, image/jpeg, image/webp"
           on:input={uploadAvatar}
         />
-      <div class="flex flex-col gap-2">
-        <div style="display:flex; justify-content: center;
-             align-items:center; margin-top:10px;">
-          {#if variantDetails.images.length > 0}
           <div class="image-preview-container">
-            {#each $reactiveImages as image, index}
+           <!-- Existing Images -->
+          {#if $existingImages?.length > 0}
+          <div class="existing-images">
+            <h3 class="text-sm font-medium mb-2">Existing Images</h3>
+            <div class="grid grid-cols-2 gap-2">
+              {#each $existingImages as image, index}
+                <div class="image-container relative">
+                  <img 
+                    class="w-32 h-32 object-cover rounded-md"
+                    alt={image.alt_text || `variant-${index}`}
+                    src={`${baseUrl}${image.thumbnail || image.image}`}
+                  />
+                  <div class="image-info text-xs mt-1">
+                    <span class="text-gray-500">ID: {image.id}</span>
+                  </div>
+                  <button 
+                    class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
+                    on:click={() => removeExistingImage(index)}
+                  >
+                    ×
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        <!-- New Images -->
+        {#if $reactiveImages?.length > 0}
+          <div class="new-images mt-4">
+            <h3 class="text-sm font-medium mb-2">New Images</h3>
+            <div class="grid grid-cols-2 gap-2">
+              {#each $reactiveImages as image, index}
+                <div class="image-container relative">
+                  <img 
+                    id="selected-logo-{index}"
+                    class="w-32 h-32 object-cover rounded-md"
+                    alt="new-variant-{index}"
+                    src={window.URL.createObjectURL(image)}
+                  />
+                  <button 
+                    class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
+                    on:click={() => removeImage(index)}
+                  >
+                    ×
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+            <!-- {#if $existingImages.length > 0}
             <div class="image-container">
               <img 
                 id="selected-logo-{index}"
@@ -441,12 +501,10 @@
                 &times;
               </button>
             </div>
-            {/each}
-          </div>
-          {/if}
+            {/each} -->
         </div>
       </div>
-    {/if}
+    <!-- {/if} -->
     <Dialog.Footer class="justify-between space-x-2">
       <Button
         type="button"
@@ -484,48 +542,26 @@
 </Dialog.Root>
 
 <style>
-  /* .hideImg {
-    visibility: hidden;
-  }
-  .showImg {
-    display: block;
-    height: 6rem;
-    width: 6rem;
-    flex: none;
-    border-radius: 20px;
-    object-fit: cover;
-  } */
-
-  .image-preview-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  .selected-logo {
-    height: 100px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-
   .image-container {
     position: relative;
     display: inline-block;
   }
 
   .remove-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    line-height: 20px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .remove-btn:hover {
+    background-color: rgb(185, 28, 28);
+  }
+
+  .image-info {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>
