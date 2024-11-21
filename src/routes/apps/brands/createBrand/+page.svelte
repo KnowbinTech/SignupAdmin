@@ -10,6 +10,7 @@
   import * as Card from "$lib/components/ui/card";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { compressImage } from "$lib/Functions/commonFunctions";
+  import { LoaderCircle } from "lucide-svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -19,6 +20,7 @@
   export let editForm: boolean;
   let updateImage: boolean = false;
   let validation: any = {};
+  let isLoading = false;
 
   let brandDetails = {
     name: "",
@@ -44,20 +46,21 @@
 
   async function uploadAvatar() {
     if (imageUpload.files && imageUpload.files.length > 0) {
-      if(imageUpload.files[0].size/1024 > 45){
-        brandDetails.logo = await compressImage(imageUpload.files[0])
-        brandDetails.logo ? updateImage = true:'';
-              }
-      else{
-              brandDetails.logo = imageUpload.files[0];
-                    updateImage = true;
-
+      if (imageUpload.files[0].size / 1024 > 45) {
+        brandDetails.logo = await compressImage(imageUpload.files[0], false);
+        brandDetails.logo ? (updateImage = true) : "";
+      } else {
+        brandDetails.logo = imageUpload.files[0];
+        updateImage = true;
       }
     }
   }
 
   async function createBrand() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       validation = {};
 
       if (brandDetails.name == "") {
@@ -91,12 +94,15 @@
         dispatch("newBrand");
         const action = editForm ? "Brand Updated" : "Brand Created";
         toast(`${action} successfully!`);
+        dispatch("cancel");
       }
     } catch (error: any) {
       const action = editForm ? "Update Brand" : "Create Brand";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -148,7 +154,9 @@
         class:hideImg={!brandDetails.logo}
         src={updateImage
           ? window.URL.createObjectURL(brandDetails.logo)
-          : (editForm ?`${baseUrl}${brandDetails.logo}`: '')}
+          : editForm
+            ? `${baseUrl}${brandDetails.logo}`
+            : ""}
       />
 
       <input
@@ -156,15 +164,42 @@
         id="file-input"
         bind:this={imageUpload}
         hidden
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp "
         on:change={uploadAvatar}
       />
     </div>
     <Dialog.Footer>
-      <Button type="button" variant="ghost" on:click={cancelModel}
-        >Cancel</Button
+      <Button
+        type="button"
+        variant="ghost"
+        on:click={cancelModel}
+        disabled={isLoading}>Cancel</Button
       >
-      <Button type="submit" on:click={createBrand}>Save</Button>
+      {#if editForm === false}
+        <Button
+          type="submit"
+          on:click={createBrand}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save
+        </Button>
+      {:else}
+        <Button
+          type="submit"
+          on:click={createBrand}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
+        </Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

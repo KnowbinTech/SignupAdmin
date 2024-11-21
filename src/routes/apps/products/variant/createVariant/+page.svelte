@@ -9,8 +9,13 @@
   import * as Card from "$lib/components/ui/card";
   import { productDetailsStore } from "$lib/stores/data";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { LoaderCircle } from "lucide-svelte";
+  import { writable } from "svelte/store";
+  import { any } from "zod";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
+  const reactiveImages = writable([]);
 
   interface AttributeDetail {
     id: number;
@@ -32,13 +37,15 @@
   let isSubscribed = false;
   let unsubscribe: () => void;
   let validation: any = {};
+  let isLoading = false;
+  let editImage: boolean = false;
 
   let variantDetails: any = {
     product: "",
     attributes: [],
     stock: "",
     selling_price: "",
-    images: "",
+    images: [],
   };
 
   // if (editForm) {
@@ -46,22 +53,24 @@
   // }
 
   if (editForm) {
-    variantDetails = { ...editData };
+    variantDetails = { 
+      ...editData,
+      images: Array.isArray(editData.images) ? editData.images : [] };
   } else {
     variantDetails = {
       product: { id: productData2.id },
       attributes: [],
       stock: "",
       selling_price: "",
-      images: "",
+      images: [],
     };
   }
 
   if (productData2) {
     // variantDetails.product = productData2.id;
-    attribute_group = productData2.categories[0].attribute_group.id;
+    attribute_group = productData2.categories[0].attribute_group?.id;
   } else {
-    attribute_group = editData.product.categories[0].attribute_group.id;
+    attribute_group = editData.product.categories[0].attribute_group?.id;
   }
 
   // if (productID) {
@@ -100,7 +109,6 @@
 
   async function handleAttributeGroupData() {
     try {
-      console.log("attrbuteGroup here:", attribute_group);
       if (attribute_group) {
         await fetchAttributegroup();
         if (attributegroup) {
@@ -153,13 +161,18 @@
         variantDetails.attributes[existingIndex] = {
           attribute: attributeId,
           value: value,
+          name: attributeName,
           id: variantDetails.attributes[existingIndex].id,
         };
       } else {
         variantDetails.attributes[existingIndex].value = value;
       }
     } else {
-      variantDetails.attributes.push({ attribute: attributeId, value: value });
+      variantDetails.attributes.push({
+        attribute: attributeId,
+        value: value,
+        name: attributeName,
+      });
     }
   }
 
@@ -173,7 +186,10 @@
   }
 
   async function createVariant() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       validation = {};
 
       if (variantDetails.attributes == "") {
@@ -191,23 +207,23 @@
       if (
         validation.attributes ||
         validation.stock ||
-        validation.selling_price 
+        validation.selling_price
       ) {
         toast(`Please fill the required field`);
       } else {
-        // console.log("Variant Details before API call:", variantDetails);
         const form = new FormData();
         const pro = variantDetails.product.id;
         form.append("product", variantDetails.product.id);
         form.append("stock", variantDetails.stock);
         form.append("selling_price", variantDetails.selling_price);
         form.append("attributes", JSON.stringify(variantDetails.attributes));
-        if (updateImage && variantDetails.images) {
-          form.append("images", variantDetails.images);
+
+        if (editImage) {
+          for (let i = 0; i < variantDetails.images.length; i++) {
+            form.append("images", variantDetails.images[i]);
+          }
         }
 
-        console.log("image uploading:", variantDetails.images);
-        console.log("attributes:", variantDetails.attributes);
         const url = editForm
           ? `/products/variant/${variantDetails.id}/update_record/`
           : "/products/variant/create_record/";
@@ -227,10 +243,9 @@
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
-    // onDestroy(() => {
-    //     unsubscribe();
-    //   });
   }
 
   function pickAvatar() {
@@ -238,9 +253,42 @@
   }
 
   async function uploadAvatar() {
-    updateImage = true;
-    variantDetails.images = imageUpload.files[0];
-    console.log("New image:", variantDetails.images);
+    editImage = true;
+    if(imageUpload.files && imageUpload.files.length > 0) {
+      for(let i = 0; i < imageUpload.files.length; i++) {
+        if (imageUpload.files[0].size / 1024 > 45) {
+          let image = 
+          await compressImage(
+            imageUpload.files[i], 
+            true
+          );
+          variantDetails.images.push(image)
+        } else {
+          variantDetails.images.push(imageUpload.files[i]);
+        }
+      }
+      reactiveImages.set(variantDetails.images);
+
+      const img: HTMLImageElement | null = document.getElementById(
+        "selected-logo"
+      ) as HTMLImageElement;
+      if(img) {
+        img.src = window.URL.createObjectURL(
+          variantDetails.images[variantDetails.images.length - 1]
+        );
+      }
+    }
+  }
+
+  function removeImage(index: any) {
+    const newImages = [...$reactiveImages];
+    newImages.splice(index, 1);
+    reactiveImages.set(newImages);
+    variantDetails.images = newImages;
+  }
+
+  function isColorCode(value: string): boolean {
+    return value.startsWith("#") && /^#[0-9A-Fa-f]{6}$/.test(value);
   }
 
   function cancelModel() {
@@ -267,13 +315,39 @@
         </div>
         <div class="mb-3 pl-4" style="min-width: 150px; max-width: 250px;">
           <Select.Root>
-            <Select.Trigger class="input capitalize {validation.attributes ? 'border-red-500' : ''}">
+            <Select.Trigger
+              class="input capitalize {validation.attributes
+                ? 'border-red-500'
+                : ''}"
+            >
               {#if selectedAttributeValues.has(detail.name)}
-                {selectedAttributeValues.get(detail.name)}
+                <div class="flex items-center gap-2">
+                  {#if isColorCode(selectedAttributeValues.get(detail.name))}
+                    <div
+                      class="w-4 h-4 rounded-full border border-gray-300"
+                      style="background-color: {selectedAttributeValues.get(
+                        detail.name
+                      )}"
+                    ></div>
+                  {/if}
+                  {selectedAttributeValues.get(detail.name)}
+                </div>
+              {:else if variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
+                <div class="flex items-center gap-2">
+                  {#if isColorCode(variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value)}
+                    <div
+                      class="w-4 h-4 rounded-full border border-gray-300"
+                      style="background-color: {variantDetails.attributes.find(
+                        (attr) => attr.attribute === detail.id
+                      )?.value}"
+                    ></div>
+                  {/if}
+                  {variantDetails.attributes.find(
+                    (attr) => attr.attribute === detail.id
+                  )?.value}
+                </div>
               {:else}
-                {variantDetails.attributes.find(
-                  (attr) => attr.attribute === detail.id
-                )?.value ?? "Select an Attribute"}
+                Select an Attribute
               {/if}
             </Select.Trigger>
             <Select.Content>
@@ -286,13 +360,23 @@
                     on:click={() =>
                       handleAttributeValueChange(detail.id, detail.name, value)}
                   >
-                    {value}
+                    <div class="flex items-center gap-2">
+                      {#if isColorCode(value)}
+                        <div
+                          class="w-4 h-4 rounded-full border border-gray-300"
+                          style="background-color: {value}"
+                        ></div>
+                      {/if}
+                      {value}
+                    </div>
                   </Select.Item>
                 {/each}
               </Select.Group>
             </Select.Content>
           </Select.Root>
-        <p class="text-red-500">{validation.attributes ? validation.attributes : ""}</p>
+          <p class="text-red-500">
+            {validation.attributes ? validation.attributes : ""}
+          </p>
         </div>
       </div>
     {/each}
@@ -303,7 +387,7 @@
         type="number"
         bind:value={variantDetails.stock}
         placeholder="Stock"
-        class="{validation.stock ? 'border-red-500' : ''}"
+        class={validation.stock ? "border-red-500" : ""}
       />
       <p class="text-red-500">{validation.stock ? validation.stock : ""}</p>
     </div>
@@ -314,49 +398,93 @@
         type="number"
         bind:value={variantDetails.selling_price}
         placeholder="Selling Price"
-        class="{validation.selling_price ? 'border-red-500' : ''}"
+        class={validation.selling_price ? "border-red-500" : ""}
       />
-      <p class="text-red-500">{validation.selling_price ? validation.selling_price : ""}</p>
+      <p class="text-red-500">
+        {validation.selling_price ? validation.selling_price : ""}
+      </p>
     </div>
     {#if !editForm}
-      <div class="flex items-center justify-evenly gap-2">
         <Button
           type="button"
-          class="btn flex gap-2 items-center bg-indigo-500 text-white text-xs"
+          variant="outline"
+          id="area"
           on:click={pickAvatar}
         >
           <i class="fa-solid fa-image text-sm"></i>
           Upload Variant image
         </Button>
-        <img
-          id="selected-logo"
-          alt=""
-          class={variantDetails.images ? "showImg" : "hideImg"}
-          src={updateImage
-            ? window.URL.createObjectURL(variantDetails.images)
-            : variantDetails.images}
-        />
         <input
           type="file"
           id="file-input"
-          hidden
           bind:this={imageUpload}
+          hidden
+          multiple
+          accept="image/png, image/jpeg, image/webp"
           on:input={uploadAvatar}
-          accept="image/png, image/jpeg"
         />
+      <div class="flex flex-col gap-2">
+        <div style="display:flex; justify-content: center;
+             align-items:center; margin-top:10px;">
+          {#if variantDetails.images.length > 0}
+          <div class="image-preview-container">
+            {#each $reactiveImages as image, index}
+            <div class="image-container">
+              <img 
+                id="selected-logo-{index}"
+                class="selected-logo w-32 h-32 object-cover rounded-md"
+                alt="varient{index}"
+                src={window.URL.createObjectURL(image)}
+              />
+              <button class="remove-btn"
+                on:click={() => removeImage(index)}>
+                &times;
+              </button>
+            </div>
+            {/each}
+          </div>
+          {/if}
+        </div>
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button type="button" variant="ghost" on:click={cancelModel}
-        >Cancel</Button
+      <Button
+        type="button"
+        variant="ghost"
+        on:click={cancelModel}
+        disabled={isLoading}>Cancel</Button
       >
-      <Button type="submit" on:click={createVariant}>Save</Button>
+      {#if editForm === false}
+        <Button
+          type="submit"
+          on:click={createVariant}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save</Button
+        >
+      {:else}
+        <Button
+          type="submit"
+          on:click={createVariant}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update</Button
+        >
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
 
 <style>
-  .hideImg {
+  /* .hideImg {
     visibility: hidden;
   }
   .showImg {
@@ -366,5 +494,38 @@
     flex: none;
     border-radius: 20px;
     object-fit: cover;
+  } */
+
+  .image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .selected-logo {
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .image-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
   }
 </style>

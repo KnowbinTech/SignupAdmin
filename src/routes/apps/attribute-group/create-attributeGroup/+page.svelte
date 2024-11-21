@@ -96,12 +96,11 @@
         }
 
         dispatch("newAttributeGroup");
-
         const action = editForm
           ? "Attribute Group Updated"
           : "Attribute Group Created";
-
         toast(`${action} successfully!`);
+        dispatch("cancel");
 
     } catch (error: any) {
       const action = editForm

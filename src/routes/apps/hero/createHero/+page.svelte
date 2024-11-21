@@ -7,6 +7,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -38,8 +39,13 @@
 
   async function uploadAvatar() {
     if (imageUpload.files && imageUpload.files.length > 0) {
-      updateImage = true;
-      heroDetails.image = imageUpload.files[0];
+      if (imageUpload.files[0].size / 1024 > 45) {
+        heroDetails.image = await compressImage(imageUpload.files[0], true);
+        heroDetails.image ? (updateImage = true) : "";
+      } else {
+        heroDetails.image = imageUpload.files[0];
+        updateImage = true;
+      }
     }
   }
 
@@ -63,9 +69,14 @@
         validation.link = ["This field may not be blank."];
       }
 
-      if (validation.short_description || validation.title ||  validation.cta_text || validation.link ) {
+      if (
+        validation.short_description ||
+        validation.title ||
+        validation.cta_text ||
+        validation.link
+      ) {
         console.log(validation);
-        console.log(heroDetails)
+        console.log(heroDetails);
         toast(`Please fill the required field`);
       } else {
         const form = new FormData();
@@ -119,9 +130,9 @@
         id="title"
         bind:value={heroDetails.title}
         placeholder="Title"
-        class="textarea {validation.title ? "border-red-500" : ""}"
+        class="textarea {validation.title ? 'border-red-500' : ''}"
       />
-        <p class="text-red-500">{validation.title ? validation.title : ""}</p>
+      <p class="text-red-500">{validation.title ? validation.title : ""}</p>
     </div>
 
     <div class="mb-3">
@@ -130,9 +141,11 @@
         id="short_description"
         bind:value={heroDetails.short_description}
         placeholder="Description"
-        class="textarea {validation.short_description ? "border-red-500" : ""}"
+        class="textarea {validation.short_description ? 'border-red-500' : ''}"
       />
-        <p class="text-red-500">{validation.short_description ? validation.short_description : ""}</p>
+      <p class="text-red-500">
+        {validation.short_description ? validation.short_description : ""}
+      </p>
     </div>
 
     <div class="mb-3">
@@ -141,9 +154,11 @@
         id="cta_text"
         bind:value={heroDetails.cta_text}
         placeholder="CTA Button Name"
-        class="textarea {validation.cta_text ? "border-red-500" : ""}"
+        class="textarea {validation.cta_text ? 'border-red-500' : ''}"
       />
-        <p class="text-red-500">{validation.cta_text ? validation.cta_text : ""}</p>
+      <p class="text-red-500">
+        {validation.cta_text ? validation.cta_text : ""}
+      </p>
     </div>
 
     <div class="mb-3">
@@ -152,9 +167,9 @@
         id="link"
         bind:value={heroDetails.link}
         placeholder="CTA Link"
-        class="textarea {validation.link ? "border-red-500" : ""}"
+        class="textarea {validation.link ? 'border-red-500' : ''}"
       />
-        <p class="text-red-500">{validation.link ? validation.link : ""}</p>
+      <p class="text-red-500">{validation.link ? validation.link : ""}</p>
     </div>
 
     <div class="flex justify-between mb-3">
@@ -166,7 +181,9 @@
           <img
             src={updateImage
               ? window.URL.createObjectURL(heroDetails.image)
-              : (editForm ? `${baseUrl}${heroDetails.image}`: '')}
+              : editForm
+                ? `${baseUrl}${heroDetails.image}`
+                : ""}
             alt="Avatar"
             class="showImg"
           />
@@ -178,7 +195,7 @@
         bind:this={imageUpload}
         hidden
         required={!imageUpload}
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp"
         on:change={uploadAvatar}
       />
     </div>

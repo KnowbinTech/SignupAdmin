@@ -61,10 +61,10 @@
         }
 
         dispatch("newAttribute");
-
         const action = editForm ? "Attribute Updated" : "Attribute Created";
-
         toast(`${action} successfully!`);
+        dispatch("cancel");
+
     } catch (error: any) {
       const action = editForm ? "Update Attribute" : "Create Attribute";
       console.log(`${action}:`, error);

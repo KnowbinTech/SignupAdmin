@@ -26,6 +26,22 @@
   let showDeleteModal = false;
   let deletingVariant: any;
 
+  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
+
+  function isHexColor(str: string) {
+    return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(str);
+  }
+
+  function formatAttributeValue(attr: any) {
+    if (isHexColor(attr.value)) {
+      return `<span class="flex items-center gap-2">
+                ${attr.attributes.name}: ${attr.value}
+                <span class="inline-block w-4 h-4 rounded-full" style="background-color: ${attr.value}"></span>
+              </span>`;
+    }
+    return `${attr.attributes.name}: ${attr.value}`;
+  }
+
   $: {
     if ($variantFormStore.refreshTrigger) {
       getVariant();
@@ -150,7 +166,7 @@
     <div>
       <Input
         class="max-w-sm"
-        placeholder="Search Categories..."
+        placeholder="Search Variant..."
         type="text"
         on:input={(event) => searchName(event)}
       />
@@ -230,16 +246,32 @@
       <Table.Row>
           <Table.Cell>{data.product.name}</Table.Cell>
         {#if hidableCoulumns[0].value}
-          <Table.Cell>
-            <img
-              src={data.image}
-              alt="Logo"
-              class="w-12 h-12 object-cover rounded-full"
-            /></Table.Cell
-          >
+          {#if data.images && data.images.length > 0}
+            <Table.Cell>
+              <img
+                src={`${baseUrl}${data.images[0].image}`}
+                alt="variant_image"
+                class="w-12 h-12 object-cover rounded-full"
+              /></Table.Cell
+            >
+            {:else}
+            <span class="text-gray-500">No Image</span>
+          {/if}
         {/if}
         {#if hidableCoulumns[1].value}
-          <Table.Cell>{data.attributes.map(attr => `${attr.attributes.name}: ${attr.value}`).join(", ")}</Table.Cell>
+          <Table.Cell>
+            {#each data.attributes as attr}
+              <div class="flex items-center gap-2">
+                {attr.attributes.name}: {attr.value}
+                {#if isHexColor(attr.value)}
+                  <span 
+                    class="inline-block w-4 h-4 rounded-full border border-gray-200" 
+                    style="background-color: {attr.value}"
+                  ></span>
+                {/if}
+              </div>
+            {/each}
+          </Table.Cell>
         {/if}
         {#if hidableCoulumns[2].value}
           <Table.Cell>{data.selling_price}</Table.Cell>
