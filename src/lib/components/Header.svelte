@@ -15,40 +15,6 @@ import Sun from "svelte-radix/Sun.svelte";
 		
 	} from "$lib/components/dashboardui/index";
 
-
-async function logout() {
-  // Implement the logout logic here
-  try {
-    const response = await API.post('/account/user/logout/', {
-      method: 'POST',
-      data:{}
-      // headers: {
-      //   'Content-Type': 'application/json',
-      //   // Include other headers as needed, for example, authorization headers
-      // },
-      // // If your API expects a body, include it here. For logout, you might not need it.
-      // // body: JSON.stringify({ your: 'data' })
-    });
-    console.log('Response status:', response.status);
-
-    if (response.status === 200) {
-      goto('/login');
-      console.log('Logged out successfully');
-    }else {
-      throw new Error('Logout failed');   
-    }
-    
-    
-
-    
-    // Handle successful logout, e.g., redirecting the user or updating UI state
-  } catch (error) {
-    console.error('Logout error:', error);
-    // Handle errors, e.g., showing an error message to the user
-  }
-
-}
-
 </script>
 <div class="border-b  shadow-sm bg-background text-foreground">
   <div class="flex h-16 items-center px-4">

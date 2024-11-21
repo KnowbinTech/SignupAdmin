@@ -7,7 +7,7 @@
     {
       name: "Dashboard",
       icon: "fa-house",
-      route: "/dashboard",
+      route: "/apps/dashboard",
       // items: [
       //   { name: "Overview", page: "dashboard-overview" },
       // ]
@@ -17,9 +17,9 @@
       icon: "fa-cart-shopping",
       //route: "/orders",
       items: [
-        { name: "Order Management", page: "orders" },
-        { name: "Returns and Refunds", page: "returns" },
-        { name: "Invoices", page: "invoices" },
+        { name: "Order Management", page: "/apps/orders" },
+        { name: "Returns and Refunds", page: "/apps/returns" },
+        { name: "Invoices", page: "/apps/invoices" },
       ]
     },
     {
@@ -27,18 +27,18 @@
       icon: "fa-tag",
       route: "/products",
       items: [
-        { name: "Categories", page: "categories" },
-        { name: "Brands", page: "brands" },
-        { name: "Collection", page: "collection" },
-        { name: "Lookbook", page: "lookbook" },
-        { name: "Attributes", page: "attributes" },
-        { name: "Attribute Group", page: "attribute-group" },
+        { name: "Categories", page: "/apps/categories" },
+        { name: "Brands", page: "/apps/brands" },
+        { name: "Collection", page: "/apps/collection" },
+        { name: "Lookbook", page: "/apps/lookbook" },
+        { name: "Attributes", page: "/apps/attributes" },
+        { name: "Attribute Group", page: "/apps/attribute-group" },
       ]
     },
     {
       name: "Customers",
       icon: "fa-user",
-      route: "/customers",
+      route: "/apps/customers",
       items: [
         { name: "Customer Group", page: "customer-group" },
         { name: "Review and Rating", page: "reviews" }
@@ -47,7 +47,7 @@
     {
       name: "Inventory",
       icon: "fa-warehouse",
-      route: "/inventory",
+      route: "/apps/inventory",
       items: [
         { name: "purchase orders", page: "purchase-orders" },
         { name: "stock levels", page: "stock" },
@@ -60,8 +60,8 @@
       icon: "fa-file-invoice",
       //route: "/inventory",
       items: [
-        { name: "Sales Report", page: "sales-report" },
-        { name: "Product Report", page: "product-report" },
+        { name: "Sales Report", page: "/apps/sales-report" },
+        { name: "Product Report", page: "/apps/product-report" },
 
       ]
     },
@@ -70,20 +70,20 @@
       name: "Settings",
       icon: "fa-gear",
       items: [
-        { name: "General Settings", page: "settings-general" },
-        { name: "Payment Methods", page: "settings-payment" },
-        { name: "Shipping Methods", page: "settings-shipping" },
-        { name: "Tax Configuration", page: "settings-tax" },
-        { name: "Admin Users", page: "settings-admin-users" },
+        { name: "General Settings", page: "/apps/settings-general" },
+        { name: "Payment Methods", page: "/apps/settings-payment" },
+        { name: "Shipping Methods", page: "/apps/settings-shipping" },
+        { name: "Tax Configuration", page: "/apps/settings-tax" },
+        { name: "Admin Users", page: "/apps/settings-admin-users" },
       ]
     },
     {
       name: "Help and Support",
       icon: "fa-circle-question",
       items: [
-        { name: "Knowledge Base", page: "support-knowledge-base" },
-        { name: "Contact Support", page: "support-contact" },
-        { name: "System Status", page: "support-system-status" },
+        { name: "Knowledge Base", page: "/apps/support-knowledge-base" },
+        { name: "Contact Support", page: "/apps/support-contact" },
+        { name: "System Status", page: "/apps/support-system-status" },
       ]
     },
   ];
