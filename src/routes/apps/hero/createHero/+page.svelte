@@ -68,12 +68,15 @@
       if (heroDetails.link == "") {
         validation.link = ["This field may not be blank."];
       }
-
+      if (!heroDetails.image && !editForm) {
+      validation.image = ["Image is required."];
+    }
       if (
         validation.short_description ||
         validation.title ||
         validation.cta_text ||
-        validation.link
+        validation.link ||
+        validation.image
       ) {
         console.log(validation);
         console.log(heroDetails);
@@ -190,15 +193,16 @@
         {/if}
       </label>
       <input
-        type="file"
-        id="file-input"
-        bind:this={imageUpload}
-        hidden
-        required={!imageUpload}
-        accept="image/png, image/jpeg, image/webp"
-        on:change={uploadAvatar}
-      />
-    </div>
+      type="file"
+      id="file-input"
+      bind:this={imageUpload}
+      hidden
+      required={!editForm}
+      accept="image/png, image/jpeg, image/webp"
+      on:change={uploadAvatar}
+    />
+  </div>
+  <p class="text-red-500">{validation.image ? validation.image : ""}</p>
     <Dialog.Footer class="justify-between space-x-2">
       <Button type="button" variant="ghost" on:click={cancelModel}
         >Cancel</Button
