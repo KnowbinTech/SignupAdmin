@@ -123,9 +123,10 @@
   }
 
   function viewVariant(data: any) {
+    console.log("qwdwfwf")
     productID = data.id;
     productData2 = data;
-    goto(`/products/variant?product=${productID}`);
+    goto(`products/variant?product=${productID}`);
   }
 
   function confirmDelete() {
