@@ -19,6 +19,16 @@
   const existingImages = writable([]);
   const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
+  interface VariantDetails {
+    product: any;
+    attributes: any[];
+    stock: string;
+    selling_price: string;
+    images: File[];
+    existingImages: any[];
+    id?: number;
+  }
+  
   interface AttributeDetail {
     id: number;
     name: string;
@@ -228,22 +238,23 @@
         toast(`Please fill the required field`);
       } else {
         const form = new FormData();
-        const pro = variantDetails.product.id;
         form.append("product", variantDetails.product.id);
         form.append("stock", variantDetails.stock);
         form.append("selling_price", variantDetails.selling_price);
         form.append("attributes", JSON.stringify(variantDetails.attributes));
 
         if (editForm) {
-          const existingImageIds = variantDetails.existingImages.map(
-            (img) => img.id
-          );
-          form.append("existing_images", JSON.stringify(existingImageIds));
+          const remainingImageIds = variantDetails.existingImages.map(img => img.id);
+          form.append("existing_images", JSON.stringify(remainingImageIds));
         }
 
-        if (variantDetails.images.length > 0) {
-          for (let i = 0; i < variantDetails.images.length; i++) {
-            form.append("images", variantDetails.images[i]);
+        if (editForm && variantDetails.images.length === 0 && variantDetails.existingImages.length === 0) {
+          validation.images = ["At least one image is required."];
+        }
+
+        if (variantDetails.images && variantDetails.images.length > 0) {
+          for (const image of variantDetails.images) {
+            form.append("images", image);
           }
         }
 
@@ -251,15 +262,20 @@
           ? `/products/variant/${variantDetails.id}/update_record/`
           : "/products/variant/create_record/";
 
-        if (editForm) {
-          await API.put(url, form);
-        } else {
-          await API.post(url, form);
-        }
+          const method = editForm ? API.put : API.post;
+          const response = await method(url, form, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          });
 
-        dispatch("newVariant");
-        const action = editForm ? "Variant Updated" : "Variant Created";
-        toast(`${action} successfully!`);
+          if (response.status === 200 || response.status === 201) {
+            dispatch("newVariant");
+            const action = editForm ? "Variant Updated" : "Variant Created";
+            toast(`${action} successfully!`);
+          } else {
+            throw new Error('Update failed');
+          }
       }
     } catch (error: any) {
       const action = editForm ? "Update Variant" : "Create Variant";
@@ -291,6 +307,7 @@
 
       variantDetails.images = [...variantDetails.images, ...newImages];
       reactiveImages.set(variantDetails.images);
+      console.log("Updated images array:", variantDetails.images);
     }
   }
 
@@ -303,11 +320,10 @@
 
   function removeExistingImage(index: number) {
     const newExistingImage = [...$existingImages];
-    const removedImage = newExistingImage[index];
-    console.log("Removing image:", removedImage);
     newExistingImage.splice(index, 1);
     existingImages.set(newExistingImage);
     variantDetails.existingImages = newExistingImage;
+    console.log("Updated existing images:", variantDetails.existingImages);
   }
 
   function isColorCode(value: string): boolean {
