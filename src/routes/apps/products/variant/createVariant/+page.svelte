@@ -16,7 +16,7 @@
 
   const dispatch = createEventDispatcher();
   const reactiveImages = writable([]);
-  const existingImages = writable([]);
+  const existingImages = writable([]); 
   const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   interface VariantDetails {
@@ -66,13 +66,12 @@
   // }
 
   if (editForm) {
-    variantDetails = {
+    variantDetails = { 
       ...editData,
       existingImages: Array.isArray(editData.images) ? editData.images : [],
-      images: [],
-    };
-    existingImages.set(variantDetails.existingImages);
-    console.log("Existing Images:", variantDetails.existingImages);
+      images: [] };
+      existingImages.set(variantDetails.existingImages);
+      console.log("Existing Images:", variantDetails.existingImages);
   } else {
     variantDetails = {
       product: { id: productData2.id },
@@ -221,19 +220,11 @@
       if (variantDetails.selling_price == "") {
         validation.selling_price = ["This field may not be blank."];
       }
-      if (!editForm && variantDetails.images.length === 0) {
-      validation.images = ["At least one image is required."];
-    }
-
-    if (editForm && variantDetails.images.length === 0 && variantDetails.existingImages.length === 0) {
-      validation.images = ["At least one image is required."];
-    }
 
       if (
         validation.attributes ||
         validation.stock ||
-        validation.selling_price ||
-        validation.images
+        validation.selling_price
       ) {
         toast(`Please fill the required field`);
       } else {
@@ -293,9 +284,9 @@
 
   async function uploadAvatar() {
     editImage = true;
-    if (imageUpload.files && imageUpload.files.length > 0) {
+    if(imageUpload.files && imageUpload.files.length > 0) {
       const newImages = [];
-      for (let i = 0; i < imageUpload.files.length; i++) {
+      for(let i = 0; i < imageUpload.files.length; i++) {
         const file = imageUpload.files[i];
         if (file.size / 1024 > 45) {
           const compressedImage = await compressImage(file, true);
@@ -305,7 +296,7 @@
         }
       }
 
-      variantDetails.images = [...variantDetails.images, ...newImages];
+      variantDetails.images = [...variantDetails.images, ...newImages]
       reactiveImages.set(variantDetails.images);
       console.log("Updated images array:", variantDetails.images);
     }
@@ -445,37 +436,33 @@
     </div>
     <!-- {#if !editForm} -->
     <div class="grid grid-cols-2 gap-4">
-      <Button
-        type="button"
-        variant="outline"
-        id="area"
-        on:click={pickAvatar}
-        class={validation.images ? "border-red-500" : ""}
-      >
-        <i class="fa-solid fa-image text-sm"></i>
-        Upload Variant image
-      </Button>
-      <input
-        type="file"
-        id="file-input"
-        bind:this={imageUpload}
-        hidden
-        multiple
-        accept="image/png, image/jpeg, image/webp"
-        on:input={uploadAvatar}
-      />
-      <p class="text-red-500 col-span-2">
-        {validation.images ? validation.images : ""}
-      </p>
-      <div class="image-preview-container">
-        <!-- Existing Images -->
-        {#if $existingImages?.length > 0}
+        <Button
+          type="button"
+          variant="outline"
+          id="area"
+          on:click={pickAvatar}
+        >
+          <i class="fa-solid fa-image text-sm"></i>
+          Upload Variant image
+        </Button>
+        <input
+          type="file"
+          id="file-input"
+          bind:this={imageUpload}
+          hidden
+          multiple
+          accept="image/png, image/jpeg, image/webp"
+          on:input={uploadAvatar}
+        />
+          <div class="image-preview-container">
+           <!-- Existing Images -->
+          {#if $existingImages?.length > 0}
           <div class="existing-images">
             <h3 class="text-sm font-medium mb-2">Existing Images</h3>
             <div class="grid grid-cols-2 gap-2">
               {#each $existingImages as image, index}
                 <div class="image-container relative">
-                  <img
+                  <img 
                     class="w-32 h-32 object-cover rounded-md"
                     alt={image.alt_text || `variant-${index}`}
                     src={`${baseUrl}${image.thumbnail || image.image}`}
@@ -483,7 +470,7 @@
                   <div class="image-info text-xs mt-1">
                     <span class="text-gray-500">ID: {image.id}</span>
                   </div>
-                  <button
+                  <button 
                     class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
                     on:click={() => removeExistingImage(index)}
                   >
@@ -502,13 +489,13 @@
             <div class="grid grid-cols-2 gap-2">
               {#each $reactiveImages as image, index}
                 <div class="image-container relative">
-                  <img
+                  <img 
                     id="selected-logo-{index}"
                     class="w-32 h-32 object-cover rounded-md"
                     alt="new-variant-{index}"
                     src={window.URL.createObjectURL(image)}
                   />
-                  <button
+                  <button 
                     class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
                     on:click={() => removeImage(index)}
                   >
@@ -519,7 +506,7 @@
             </div>
           </div>
         {/if}
-        <!-- {#if $existingImages.length > 0}
+            <!-- {#if $existingImages.length > 0}
             <div class="image-container">
               <img 
                 id="selected-logo-{index}"
@@ -533,8 +520,8 @@
               </button>
             </div>
             {/each} -->
+        </div>
       </div>
-    </div>
     <!-- {/if} -->
     <Dialog.Footer class="justify-between space-x-2">
       <Button
