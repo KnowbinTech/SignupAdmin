@@ -59,6 +59,7 @@
         productData2={$variantFormStore.productData}
         editData={$variantFormStore.editData}
         editForm={$variantFormStore.isEditMode}
+        imageEditMode={$variantFormStore.imageEditMode}
         on:cancel={() => variantFormStore.close()}
         on:newVariant={handleVariantSuccess}
       />

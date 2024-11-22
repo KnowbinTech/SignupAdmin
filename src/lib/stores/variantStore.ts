@@ -8,6 +8,7 @@ type VariantFormState = {
   productData: any | null;
   isLoading: boolean;
   refreshTrigger: number;
+  imageEditMode: boolean;
 };
 
 function createVariantFormStore() {
@@ -17,7 +18,8 @@ function createVariantFormStore() {
     isEditMode: false,
     productData: null,
     isLoading: false,
-    refreshTrigger: 0
+    refreshTrigger: 0,
+    imageEditMode: false
   });
 
   async function fetchProductData(productId: string) {
@@ -41,10 +43,11 @@ function createVariantFormStore() {
         isEditMode: false, 
         productData,
         isLoading: false,
-        refreshTrigger: state.refreshTrigger
+        refreshTrigger: state.refreshTrigger,
+        imageEditMode: false
       }));
     },
-    openEdit: async (editData: any, productId: string) => {
+    openEdit: async (editData: any, productId: string, imageEditMode: boolean ) => {
       update(state => ({ ...state, isLoading: true }));
       const productData = await fetchProductData(productId);
       update(state => ({ 
@@ -53,7 +56,8 @@ function createVariantFormStore() {
         isEditMode: true, 
         productData,
         isLoading: false,
-        refreshTrigger: state.refreshTrigger
+        refreshTrigger: state.refreshTrigger,
+        imageEditMode
       }));
     },
     close: () => update(state => ({ 
@@ -62,7 +66,8 @@ function createVariantFormStore() {
       isEditMode: false, 
       productData: null,
       isLoading: false,
-      refreshTrigger: state.refreshTrigger
+      refreshTrigger: state.refreshTrigger,
+      imageEditMode: false
     })),
     triggerRefresh: () => update(state => ({
         ...state,

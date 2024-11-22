@@ -38,6 +38,8 @@
   export let editData: any;
   export let editForm: boolean;
   export let productData2: any;
+  export let imageEditMode: boolean = false;
+
   let attributegroup: any;
   let attributeDetails: AttributeDetail[] = [];
   let selectedAttributeValues = new Map();
@@ -283,7 +285,6 @@
   }
 
   async function uploadAvatar() {
-    editImage = true;
     if(imageUpload.files && imageUpload.files.length > 0) {
       const newImages = [];
       for(let i = 0; i < imageUpload.files.length; i++) {
@@ -298,7 +299,6 @@
 
       variantDetails.images = [...variantDetails.images, ...newImages]
       reactiveImages.set(variantDetails.images);
-      console.log("Updated images array:", variantDetails.images);
     }
   }
 
@@ -332,12 +332,13 @@
 </script>
 
 <Dialog.Root open={true} onOpenChange={cancelModel} preventScroll={true}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content class="max-w-md overflow-auto max-h-[90vh]">
     <Dialog.Header>
       <Dialog.Title>
-        {editForm ? "Update Variant" : "New Variant"}</Dialog.Title
+        {imageEditMode ? "Edit Images" : (editForm ? "Update Variant" : "New Variant")}</Dialog.Title
       >
     </Dialog.Header>
+    {#if !imageEditMode}
     {#each attributeDetails as detail}
       <div class="flex justify-center">
         <div class="mb-3" style="min-width: 100px; max-width: 200px;">
@@ -434,16 +435,17 @@
         {validation.selling_price ? validation.selling_price : ""}
       </p>
     </div>
-    <!-- {#if !editForm} -->
-    <div class="grid grid-cols-2 gap-4">
+    {/if}
+    <div class="{imageEditMode ? 'space-y-4' : ''}">
         <Button
           type="button"
           variant="outline"
           id="area"
           on:click={pickAvatar}
+          class={imageEditMode ? "w-full" : ""}
         >
-          <i class="fa-solid fa-image text-sm"></i>
-          Upload Variant image
+          <i class="fa-solid fa-image text-sm {imageEditMode ? 'mr-2' : ''}"></i>
+          Upload {imageEditMode ? 'New ' : 'Variant '}Image
         </Button>
         <input
           type="file"
@@ -454,12 +456,14 @@
           accept="image/png, image/jpeg, image/webp"
           on:input={uploadAvatar}
         />
+        <div class="flex gap-2">
           <div class="image-preview-container">
-           <!-- Existing Images -->
           {#if $existingImages?.length > 0}
           <div class="existing-images">
-            <h3 class="text-sm font-medium mb-2">Existing Images</h3>
-            <div class="grid grid-cols-2 gap-2">
+            <h3 class="text-sm font-medium mb-2">
+              {imageEditMode ? 'Current' : 'Existing'} Images
+            </h3>
+            <div class="grid grid-cols-3 gap-2">
               {#each $existingImages as image, index}
                 <div class="image-container relative">
                   <img 
@@ -467,9 +471,6 @@
                     alt={image.alt_text || `variant-${index}`}
                     src={`${baseUrl}${image.thumbnail || image.image}`}
                   />
-                  <div class="image-info text-xs mt-1">
-                    <span class="text-gray-500">ID: {image.id}</span>
-                  </div>
                   <button 
                     class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
                     on:click={() => removeExistingImage(index)}
@@ -482,11 +483,10 @@
           </div>
         {/if}
 
-        <!-- New Images -->
         {#if $reactiveImages?.length > 0}
           <div class="new-images mt-4">
             <h3 class="text-sm font-medium mb-2">New Images</h3>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-2">
               {#each $reactiveImages as image, index}
                 <div class="image-container relative">
                   <img 
@@ -506,23 +506,9 @@
             </div>
           </div>
         {/if}
-            <!-- {#if $existingImages.length > 0}
-            <div class="image-container">
-              <img 
-                id="selected-logo-{index}"
-                class="selected-logo w-32 h-32 object-cover rounded-md"
-                alt="varient{index}"
-                src={window.URL.createObjectURL(image)}
-              />
-              <button class="remove-btn"
-                on:click={() => removeImage(index)}>
-                &times;
-              </button>
-            </div>
-            {/each} -->
+        </div>
         </div>
       </div>
-    <!-- {/if} -->
     <Dialog.Footer class="justify-between space-x-2">
       <Button
         type="button"
@@ -577,9 +563,26 @@
     background-color: rgb(185, 28, 28);
   }
 
-  .image-info {
+  /* .image-info {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  } */
+
+  :global(.overflow-auto) {
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+  }
+
+  :global(.overflow-auto::-webkit-scrollbar) {
+    display: none; 
+  }
+
+  :global(.overflow-auto) {
+    scroll-behavior: smooth;
+  }
+
+  :global(.max-w-md) {
+    padding-right: 1rem;
   }
 </style>

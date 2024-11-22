@@ -7,7 +7,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import API from "$lib/services/api";
   import { createEventDispatcher, onMount } from "svelte";
-  import { MoreHorizontal } from "lucide-svelte";
+  import { Key, MoreHorizontal } from "lucide-svelte";
   import { toast } from "svelte-sonner";
   import ConfirmDeleteModal from "$lib/components/ui/confirmation-modal/ConfirmDeleteModal.svelte";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
@@ -22,6 +22,7 @@
   let sortData: boolean = true;
   let sortField: string = "";
   let searchData: string = "";
+  let imageEdit: boolean = false;
 
   let showDeleteModal = false;
   let deletingVariant: any;
@@ -96,7 +97,13 @@
   }
 
   function onEdit(data: any) {
-    variantFormStore.openEdit(data, productId);
+    imageEdit = false;
+    variantFormStore.openEdit(data, productId, imageEdit);
+  }
+
+  function onEditImage(data:any) {
+    imageEdit = true;
+    variantFormStore.openEdit(data, productId, imageEdit);
   }
 
   function onDelete(id: any) {
@@ -246,17 +253,26 @@
       <Table.Row>
           <Table.Cell>{data.product.name}</Table.Cell>
         {#if hidableCoulumns[0].value}
-          {#if data.images && data.images.length > 0}
-            <Table.Cell>
-              <img
-                src={`${baseUrl}${data.images[0].image}`}
-                alt="variant_image"
-                class="w-12 h-12 object-cover rounded-full"
-              /></Table.Cell
-            >
+        <Table.Cell>
+          <button
+            type="button"
+            class="focus:outline-none"
+            on:click={() => onEditImage(data)}
+            on:keydown={(event) => {
+              if(event.key === 'Enter' || event.key === ' ') {
+                onEditImage(data)
+              }
+            }}>
+            {#if data.images && data.images.length > 0}
+            <img
+              src={`${baseUrl}${data.images[0].image}`}
+              alt="variant_image"
+              class="w-12 h-12 object-cover rounded-full"/>
             {:else}
             <span class="text-gray-500">No Image</span>
-          {/if}
+            {/if}
+          </button>
+        </Table.Cell>
         {/if}
         {#if hidableCoulumns[1].value}
           <Table.Cell>
