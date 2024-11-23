@@ -13,6 +13,8 @@
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
   import { variantFormStore } from '$lib/stores/variantStore';
 
+  export let productId: any;
+  
   let dispatch = createEventDispatcher();
 
   let page: number = 1;
@@ -49,17 +51,17 @@
     }
   }
 
-  let productId: any;
+  // let productId: any;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    productId = urlParams.get('product');
-    console.log("Product ID from URL:", productId);
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   productId = urlParams.get('product');
+  //   console.log("Product ID from URL:", productId);
 
-    if (productId) {
-      sessionStorage.setItem('productId', productId);
-    } else {
-      productId = sessionStorage.getItem('productId');
-    }
+  //   if (productId) {
+  //     sessionStorage.setItem('productId', productId);
+  //   } else {
+  //     productId = sessionStorage.getItem('productId');
+  //   }
 
   let hidableCoulumns: any[] = [
     { name: "Image", value: true },

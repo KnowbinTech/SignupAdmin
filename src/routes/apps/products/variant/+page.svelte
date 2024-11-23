@@ -1,20 +1,25 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { goto } from "$app/navigation";
   import { Button } from "$lib/components/ui/button";
   import VariantTable from "./variantTable.svelte";
   import CreateVariant from "./createVariant/+page.svelte";
   import { variantFormStore } from '$lib/stores/variantStore';
+  import type { PageData } from './$types';
 
-  let productID: any;
+  export let data;
+  let productID: string = data.productId;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  productID = urlParams.get("product");
-
-  if (productID) {
-    sessionStorage.setItem("productId", productID);
-  } else {
-    productID = sessionStorage.getItem("productId");
-  }
+  onMount(() => {
+    if (productID) {
+      sessionStorage.setItem("productId", productID);
+    } else {
+      const storedId = sessionStorage.getItem("productId");
+      if (storedId) {
+        productID = storedId;
+      }
+    }
+  });
 
   function goBack() {
     goto("/products");
@@ -44,7 +49,7 @@
       >
     </div>
   </div>
-  <VariantTable />
+  <VariantTable productId = {productID} />
   <div class="flex justify-end">
     <Button class="text-end" on:click={goBack}>Go Back</Button>
   </div>
