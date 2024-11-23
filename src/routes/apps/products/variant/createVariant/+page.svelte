@@ -9,9 +9,26 @@
   import * as Card from "$lib/components/ui/card";
   import { productDetailsStore } from "$lib/stores/data";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { LoaderCircle } from "lucide-svelte";
+  import { writable } from "svelte/store";
+  import { any } from "zod";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
+  const reactiveImages = writable([]);
+  const existingImages = writable([]); 
+  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
+  interface VariantDetails {
+    product: any;
+    attributes: any[];
+    stock: string;
+    selling_price: string;
+    images: File[];
+    existingImages: any[];
+    id?: number;
+  }
+  
   interface AttributeDetail {
     id: number;
     name: string;
@@ -21,6 +38,8 @@
   export let editData: any;
   export let editForm: boolean;
   export let productData2: any;
+  export let imageEditMode: boolean = false;
+
   let attributegroup: any;
   let attributeDetails: AttributeDetail[] = [];
   let selectedAttributeValues = new Map();
@@ -32,13 +51,16 @@
   let isSubscribed = false;
   let unsubscribe: () => void;
   let validation: any = {};
+  let isLoading = false;
+  let editImage: boolean = false;
 
   let variantDetails: any = {
     product: "",
     attributes: [],
     stock: "",
     selling_price: "",
-    images: "",
+    images: [],
+    existingImages: [],
   };
 
   // if (editForm) {
@@ -46,22 +68,28 @@
   // }
 
   if (editForm) {
-    variantDetails = { ...editData };
+    variantDetails = { 
+      ...editData,
+      existingImages: Array.isArray(editData.images) ? editData.images : [],
+      images: [] };
+      existingImages.set(variantDetails.existingImages);
+      console.log("Existing Images:", variantDetails.existingImages);
   } else {
     variantDetails = {
       product: { id: productData2.id },
       attributes: [],
       stock: "",
       selling_price: "",
-      images: "",
+      images: [],
+      existingImages: [],
     };
   }
 
   if (productData2) {
     // variantDetails.product = productData2.id;
-    attribute_group = productData2.categories[0].attribute_group.id;
+    attribute_group = productData2.categories[0].attribute_group?.id;
   } else {
-    attribute_group = editData.product.categories[0].attribute_group.id;
+    attribute_group = editData.product.categories[0].attribute_group?.id;
   }
 
   // if (productID) {
@@ -100,7 +128,6 @@
 
   async function handleAttributeGroupData() {
     try {
-      console.log("attrbuteGroup here:", attribute_group);
       if (attribute_group) {
         await fetchAttributegroup();
         if (attributegroup) {
@@ -153,13 +180,18 @@
         variantDetails.attributes[existingIndex] = {
           attribute: attributeId,
           value: value,
+          name: attributeName,
           id: variantDetails.attributes[existingIndex].id,
         };
       } else {
         variantDetails.attributes[existingIndex].value = value;
       }
     } else {
-      variantDetails.attributes.push({ attribute: attributeId, value: value });
+      variantDetails.attributes.push({
+        attribute: attributeId,
+        value: value,
+        name: attributeName,
+      });
     }
   }
 
@@ -173,7 +205,10 @@
   }
 
   async function createVariant() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       validation = {};
 
       if (variantDetails.attributes == "") {
@@ -191,46 +226,58 @@
       if (
         validation.attributes ||
         validation.stock ||
-        validation.selling_price 
+        validation.selling_price
       ) {
         toast(`Please fill the required field`);
       } else {
-        // console.log("Variant Details before API call:", variantDetails);
         const form = new FormData();
-        const pro = variantDetails.product.id;
         form.append("product", variantDetails.product.id);
         form.append("stock", variantDetails.stock);
         form.append("selling_price", variantDetails.selling_price);
         form.append("attributes", JSON.stringify(variantDetails.attributes));
-        if (updateImage && variantDetails.images) {
-          form.append("images", variantDetails.images);
+
+        if (editForm) {
+          const remainingImageIds = variantDetails.existingImages.map(img => img.id);
+          form.append("existing_images", JSON.stringify(remainingImageIds));
         }
 
-        console.log("image uploading:", variantDetails.images);
-        console.log("attributes:", variantDetails.attributes);
+        if (editForm && variantDetails.images.length === 0 && variantDetails.existingImages.length === 0) {
+          validation.images = ["At least one image is required."];
+        }
+
+        if (variantDetails.images && variantDetails.images.length > 0) {
+          for (const image of variantDetails.images) {
+            form.append("images", image);
+          }
+        }
+
         const url = editForm
           ? `/products/variant/${variantDetails.id}/update_record/`
           : "/products/variant/create_record/";
 
-        if (editForm) {
-          await API.put(url, form);
-        } else {
-          await API.post(url, form);
-        }
+          const method = editForm ? API.put : API.post;
+          const response = await method(url, form, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          });
 
-        dispatch("newVariant");
-        const action = editForm ? "Variant Updated" : "Variant Created";
-        toast(`${action} successfully!`);
+          if (response.status === 200 || response.status === 201) {
+            dispatch("newVariant");
+            const action = editForm ? "Variant Updated" : "Variant Created";
+            toast(`${action} successfully!`);
+          } else {
+            throw new Error('Update failed');
+          }
       }
     } catch (error: any) {
       const action = editForm ? "Update Variant" : "Create Variant";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
-    // onDestroy(() => {
-    //     unsubscribe();
-    //   });
   }
 
   function pickAvatar() {
@@ -238,9 +285,40 @@
   }
 
   async function uploadAvatar() {
-    updateImage = true;
-    variantDetails.images = imageUpload.files[0];
-    console.log("New image:", variantDetails.images);
+    if(imageUpload.files && imageUpload.files.length > 0) {
+      const newImages = [];
+      for(let i = 0; i < imageUpload.files.length; i++) {
+        const file = imageUpload.files[i];
+        if (file.size / 1024 > 45) {
+          const compressedImage = await compressImage(file, true);
+          newImages.push(compressedImage);
+        } else {
+          newImages.push(file);
+        }
+      }
+
+      variantDetails.images = [...variantDetails.images, ...newImages]
+      reactiveImages.set(variantDetails.images);
+    }
+  }
+
+  function removeImage(index: number) {
+    const newImages = [...$reactiveImages];
+    newImages.splice(index, 1);
+    reactiveImages.set(newImages);
+    variantDetails.images = newImages;
+  }
+
+  function removeExistingImage(index: number) {
+    const newExistingImage = [...$existingImages];
+    newExistingImage.splice(index, 1);
+    existingImages.set(newExistingImage);
+    variantDetails.existingImages = newExistingImage;
+    console.log("Updated existing images:", variantDetails.existingImages);
+  }
+
+  function isColorCode(value: string): boolean {
+    return value.startsWith("#") && /^#[0-9A-Fa-f]{6}$/.test(value);
   }
 
   function cancelModel() {
@@ -254,12 +332,13 @@
 </script>
 
 <Dialog.Root open={true} onOpenChange={cancelModel} preventScroll={true}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content class="max-w-md overflow-auto max-h-[90vh]">
     <Dialog.Header>
       <Dialog.Title>
-        {editForm ? "Update Variant" : "New Variant"}</Dialog.Title
+        {imageEditMode ? "Edit Images" : (editForm ? "Update Variant" : "New Variant")}</Dialog.Title
       >
     </Dialog.Header>
+    {#if !imageEditMode}
     {#each attributeDetails as detail}
       <div class="flex justify-center">
         <div class="mb-3" style="min-width: 100px; max-width: 200px;">
@@ -267,13 +346,39 @@
         </div>
         <div class="mb-3 pl-4" style="min-width: 150px; max-width: 250px;">
           <Select.Root>
-            <Select.Trigger class="input capitalize {validation.attributes ? 'border-red-500' : ''}">
+            <Select.Trigger
+              class="input capitalize {validation.attributes
+                ? 'border-red-500'
+                : ''}"
+            >
               {#if selectedAttributeValues.has(detail.name)}
-                {selectedAttributeValues.get(detail.name)}
+                <div class="flex items-center gap-2">
+                  {#if isColorCode(selectedAttributeValues.get(detail.name))}
+                    <div
+                      class="w-4 h-4 rounded-full border border-gray-300"
+                      style="background-color: {selectedAttributeValues.get(
+                        detail.name
+                      )}"
+                    ></div>
+                  {/if}
+                  {selectedAttributeValues.get(detail.name)}
+                </div>
+              {:else if variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value}
+                <div class="flex items-center gap-2">
+                  {#if isColorCode(variantDetails.attributes.find((attr) => attr.attribute === detail.id)?.value)}
+                    <div
+                      class="w-4 h-4 rounded-full border border-gray-300"
+                      style="background-color: {variantDetails.attributes.find(
+                        (attr) => attr.attribute === detail.id
+                      )?.value}"
+                    ></div>
+                  {/if}
+                  {variantDetails.attributes.find(
+                    (attr) => attr.attribute === detail.id
+                  )?.value}
+                </div>
               {:else}
-                {variantDetails.attributes.find(
-                  (attr) => attr.attribute === detail.id
-                )?.value ?? "Select an Attribute"}
+                Select an Attribute
               {/if}
             </Select.Trigger>
             <Select.Content>
@@ -286,13 +391,23 @@
                     on:click={() =>
                       handleAttributeValueChange(detail.id, detail.name, value)}
                   >
-                    {value}
+                    <div class="flex items-center gap-2">
+                      {#if isColorCode(value)}
+                        <div
+                          class="w-4 h-4 rounded-full border border-gray-300"
+                          style="background-color: {value}"
+                        ></div>
+                      {/if}
+                      {value}
+                    </div>
                   </Select.Item>
                 {/each}
               </Select.Group>
             </Select.Content>
           </Select.Root>
-        <p class="text-red-500">{validation.attributes ? validation.attributes : ""}</p>
+          <p class="text-red-500">
+            {validation.attributes ? validation.attributes : ""}
+          </p>
         </div>
       </div>
     {/each}
@@ -303,7 +418,7 @@
         type="number"
         bind:value={variantDetails.stock}
         placeholder="Stock"
-        class="{validation.stock ? 'border-red-500' : ''}"
+        class={validation.stock ? "border-red-500" : ""}
       />
       <p class="text-red-500">{validation.stock ? validation.stock : ""}</p>
     </div>
@@ -314,57 +429,160 @@
         type="number"
         bind:value={variantDetails.selling_price}
         placeholder="Selling Price"
-        class="{validation.selling_price ? 'border-red-500' : ''}"
+        class={validation.selling_price ? "border-red-500" : ""}
       />
-      <p class="text-red-500">{validation.selling_price ? validation.selling_price : ""}</p>
+      <p class="text-red-500">
+        {validation.selling_price ? validation.selling_price : ""}
+      </p>
     </div>
-    {#if !editForm}
-      <div class="flex items-center justify-evenly gap-2">
+    {/if}
+    <div class="{imageEditMode ? 'space-y-4' : ''}">
         <Button
           type="button"
-          class="btn flex gap-2 items-center bg-indigo-500 text-white text-xs"
+          variant="outline"
+          id="area"
           on:click={pickAvatar}
+          class={imageEditMode ? "w-full" : ""}
         >
-          <i class="fa-solid fa-image text-sm"></i>
-          Upload Variant image
+          <i class="fa-solid fa-image text-sm {imageEditMode ? 'mr-2' : ''}"></i>
+          Upload {imageEditMode ? 'New ' : 'Variant '}Image
         </Button>
-        <img
-          id="selected-logo"
-          alt=""
-          class={variantDetails.images ? "showImg" : "hideImg"}
-          src={updateImage
-            ? window.URL.createObjectURL(variantDetails.images)
-            : variantDetails.images}
-        />
         <input
           type="file"
           id="file-input"
-          hidden
           bind:this={imageUpload}
+          hidden
+          multiple
+          accept="image/png, image/jpeg, image/webp"
           on:input={uploadAvatar}
-          accept="image/png, image/jpeg"
         />
+        <div class="flex gap-2">
+          <div class="image-preview-container">
+          {#if $existingImages?.length > 0}
+          <div class="existing-images">
+            <h3 class="text-sm font-medium mb-2">
+              {imageEditMode ? 'Current' : 'Existing'} Images
+            </h3>
+            <div class="grid grid-cols-3 gap-2">
+              {#each $existingImages as image, index}
+                <div class="image-container relative">
+                  <img 
+                    class="w-32 h-32 object-cover rounded-md"
+                    alt={image.alt_text || `variant-${index}`}
+                    src={`${baseUrl}${image.thumbnail || image.image}`}
+                  />
+                  <button 
+                    class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
+                    on:click={() => removeExistingImage(index)}
+                  >
+                    ×
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        {#if $reactiveImages?.length > 0}
+          <div class="new-images mt-4">
+            <h3 class="text-sm font-medium mb-2">New Images</h3>
+            <div class="grid grid-cols-3 gap-2">
+              {#each $reactiveImages as image, index}
+                <div class="image-container relative">
+                  <img 
+                    id="selected-logo-{index}"
+                    class="w-32 h-32 object-cover rounded-md"
+                    alt="new-variant-{index}"
+                    src={window.URL.createObjectURL(image)}
+                  />
+                  <button 
+                    class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
+                    on:click={() => removeImage(index)}
+                  >
+                    ×
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+        </div>
+        </div>
       </div>
-    {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button type="button" variant="ghost" on:click={cancelModel}
-        >Cancel</Button
+      <Button
+        type="button"
+        variant="ghost"
+        on:click={cancelModel}
+        disabled={isLoading}>Cancel</Button
       >
-      <Button type="submit" on:click={createVariant}>Save</Button>
+      {#if editForm === false}
+        <Button
+          type="submit"
+          on:click={createVariant}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save</Button
+        >
+      {:else}
+        <Button
+          type="submit"
+          on:click={createVariant}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update</Button
+        >
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
 
 <style>
-  .hideImg {
-    visibility: hidden;
+  .image-container {
+    position: relative;
+    display: inline-block;
   }
-  .showImg {
-    display: block;
-    height: 6rem;
-    width: 6rem;
-    flex: none;
-    border-radius: 20px;
-    object-fit: cover;
+
+  .remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .remove-btn:hover {
+    background-color: rgb(185, 28, 28);
+  }
+
+  /* .image-info {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } */
+
+  :global(.overflow-auto) {
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+  }
+
+  :global(.overflow-auto::-webkit-scrollbar) {
+    display: none; 
+  }
+
+  :global(.overflow-auto) {
+    scroll-behavior: smooth;
+  }
+
+  :global(.max-w-md) {
+    padding-right: 1rem;
   }
 </style>

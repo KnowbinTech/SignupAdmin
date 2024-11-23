@@ -10,6 +10,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import { LoaderCircle } from "lucide-svelte";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -48,7 +49,16 @@
   async function uploadAvatar() {
     updateImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
-      lookbookDetails.feature_image = imageUpload.files[0];
+      if (imageUpload.files[0].size / 1024 > 45) {
+        lookbookDetails.feature_image = await compressImage(
+          imageUpload.files[0],
+          false
+        );
+        lookbookDetails.feature_image ? (updateImage = true) : "";
+      } else {
+        lookbookDetails.feature_image = imageUpload.files[0];
+        updateImage = true;
+      }
       const img: HTMLImageElement | null = document.getElementById(
         "selected-feature_image"
       ) as HTMLImageElement;
@@ -58,11 +68,11 @@
     }
   }
 
-  async function createCollection() {
+  async function createLookbook() {
     if (isLoading) return;
 
     try {
-      isLoading =true;
+      isLoading = true;
       validation = {};
 
       if (lookbookDetails.name == "") {
@@ -92,18 +102,18 @@
 
       if (validation.name || validation.description || validation.tags) {
         toast(`Please fill the required field`);
-      } 
+      }
 
-        if (editForm) {
-          await API.put(url, form);
-        } else {
-          await API.post(url, form);
-        }
+      if (editForm) {
+        await API.put(url, form);
+      } else {
+        await API.post(url, form);
+      }
 
-        dispatch("newLookbook");
-        const action = editForm ? "Lookbook Updated" : "Lookbook Created";
-        toast(`${action} successfully!`);
-
+      dispatch("newLookbook");
+      const action = editForm ? "Lookbook Updated" : "Lookbook Created";
+      toast(`${action} successfully!`);
+      dispatch("cancel");
     } catch (error: any) {
       const action = editForm ? "Update Lookbook" : "Create Lookbook";
       console.log(`${action}:`, error);
@@ -190,7 +200,9 @@
         class:hideImg={!lookbookDetails.feature_image}
         src={updateImage
           ? window.URL.createObjectURL(lookbookDetails.feature_image)
-          : (editForm ?`${baseUrl}${lookbookDetails.feature_image}`: '')}
+          : editForm
+            ? `${baseUrl}${lookbookDetails.feature_image}`
+            : ""}
       />
 
       <input
@@ -198,39 +210,40 @@
         id="file-input"
         bind:this={imageUpload}
         hidden
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp"
         on:change={uploadAvatar}
       />
     </div>
     <Dialog.Footer class="justify-between space-x-2">
-      <Button 
-        type="button" 
-        variant="ghost" 
+      <Button
+        type="button"
+        variant="ghost"
         on:click={() => dispatch("cancel")}
-        disabled={isLoading}
-        >Cancel</Button
+        disabled={isLoading}>Cancel</Button
       >
       {#if editForm === false}
-        <Button 
-          type="submit" 
-          on:click={createCollection}
+        <Button
+          type="submit"
+          on:click={createLookbook}
           disabled={isLoading}
-          class="relative">
+          class="relative"
+        >
           {#if isLoading}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
           Save
         </Button>
-        {:else}
-        <Button 
-            type="submit" 
-            on:click={createCollection}
-            disabled={isLoading}
-            class="relative">
-            {#if isLoading}
-              <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
-            {/if}
-            Update
+      {:else}
+        <Button
+          type="submit"
+          on:click={createLookbook}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
         </Button>
       {/if}
     </Dialog.Footer>

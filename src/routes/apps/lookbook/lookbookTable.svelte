@@ -135,6 +135,13 @@
     getLookbook();
   }
 
+  function cancelEditModel() {
+    editData = null;
+    editForm = false;
+    showForm = false;
+    dispatch("cancel");
+  }
+
   function pageLimit(event: any, value: any) {
     per_page = value;
     getLookbook();
@@ -155,11 +162,7 @@
     <CreateLookbook
       {editData}
       {editForm}
-      on:cancel={() => {
-        editData = null;
-        editForm = false;
-        showForm = false;
-      }}
+      on:cancel={cancelEditModel}
       on:newLookbook={() => handleNewLookbook()}
     />
   {/if}

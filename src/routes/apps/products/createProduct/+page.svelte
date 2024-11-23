@@ -10,6 +10,8 @@
   import { writable } from "svelte/store";
   import { toast } from "svelte-sonner";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { LoaderCircle } from "lucide-svelte";
+  import { compressImage } from "$lib/Functions/commonFunctions";
 
   const dispatch = createEventDispatcher();
 
@@ -18,6 +20,7 @@
   let selectedBrand: string;
   let tags: any = [];
   let selectedCategory: string;
+  let selectedGst: string;
   let selectedGender: string;
   let editBrand: boolean = false;
   let editCategory: boolean = false;
@@ -25,8 +28,9 @@
   let editTag: boolean = false;
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
-  const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
+  let isLoading = false;
 
+  const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
   // This function processes the tag input when the user types or pastes the tags
 
   let productDetails: any = {
@@ -36,6 +40,7 @@
     description: "",
     sku: "",
     price: "",
+    gst: "",
     selling_price: "",
     categories: [],
     brand: "",
@@ -52,7 +57,6 @@
   const reactiveImages = writable([]);
 
   if (editForm) {
-    console.log(editData);
 
     productDetails = editData;
 
@@ -83,6 +87,12 @@
     updatedBy: string;
   };
 
+  type Gst = {
+    id: string;
+    name: string;
+    slab: string;
+  };
+
   export const brands = writable<Brand[]>([], (set) => {
     getBrands().then((data) => {
       set(data);
@@ -98,6 +108,41 @@
       return [];
     }
   }
+
+  let tax :any[]
+onMount(()=>{
+  getTax()
+})
+
+  async function getTax() {
+    try {
+        let response = await API.get("/inventory/tax");
+        return response.data.results
+
+    } catch (error) {
+      console.error("fetch:gst:", error);
+    }
+  }
+
+  let gst = writable<Gst[]>([], (set) => {
+    getTax().then((data) => {
+      set(data);
+    });
+  });
+
+  
+  function handleTaxChange(selectedTaxId: string) {
+    editCategory = true;
+    productDetails.gst = selectedTaxId;
+    const taxArray = $gst;
+    const foundTax = taxArray.find(
+      (category: any) => category.id === selectedTaxId
+    );
+    if (foundTax) {
+      selectedGst = foundTax.name;
+    }
+  }
+
 
   async function getCategory() {
     try {
@@ -127,7 +172,8 @@
     }
   }
 
-  function handleGenderChange(gender: string) { // Renamed parameter for clarity
+  function handleGenderChange(gender: string) {
+    // Renamed parameter for clarity
     // editCategory = true;
     productDetails.preferred_gender = gender;
     // const categoriesArray = $categories;
@@ -150,7 +196,10 @@
   }
 
   async function createProduct() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
       productDetails.tags = tagInput
         .split(",")
         .map((tag) => tag.trim())
@@ -180,6 +229,10 @@
 
       if (productDetails.price == "") {
         validation.price = ["This field may not be blank."];
+      }
+
+      if (productDetails.gst == "") {
+        validation.gst = ["This field may not be blank."]; // Added validation for GST
       }
 
       if (productDetails.selling_price == "") {
@@ -213,6 +266,7 @@
         validation.preferred_gender ||
         validation.sku ||
         validation.price ||
+        validation.gst ||
         validation.selling_price ||
         validation.categories ||
         validation.brand ||
@@ -220,12 +274,10 @@
         validation.dimension ||
         validation.tags
       ) {
-        console.log(validation);
 
         toast(`Please fill the required field`);
       } else {
         const form = new FormData();
-        console.log(productDetails.is_disabled);
         if (!editBrand) {
           productDetails.brand = productDetails.brand.id;
         }
@@ -237,6 +289,7 @@
         form.append("description", productDetails.description);
         form.append("sku", productDetails.sku);
         form.append("price", productDetails.price);
+        form.append("gst", productDetails.gst);
         form.append("selling_price", productDetails.selling_price);
         // form.append("dimension", productDetails.dimension);
         form.append("condition", productDetails.condition);
@@ -266,15 +319,17 @@
         }
 
         dispatch("newProduct");
-
         const action = editForm ? "Product Updated" : "Product Created";
         toast(`${action} successfully!`);
+        dispatch("cancel");
       }
     } catch (error: any) {
       const action = editForm ? "Product Updated" : "Product Created";
       console.error("create:product:", error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -294,7 +349,18 @@
     editImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       for (let i = 0; i < imageUpload.files.length; i++) {
+        
+        if (imageUpload.files[i].size / 1024 > 45) {
+          let image = await compressImage(
+          imageUpload.files[i],
+          true
+        );
+        productDetails.images.push(image)
+      } else {
         productDetails.images.push(imageUpload.files[i]);
+      }
+
+        
       }
       // Update the reactiveImages store
       reactiveImages.set(productDetails.images);
@@ -307,7 +373,6 @@
           productDetails.images[productDetails.images.length - 1]
         );
       }
-      console.log("productDetails.images after update:", productDetails.images);
     }
   }
   function removeImage(index: any) {
@@ -452,7 +517,9 @@
               ? 'border-red-500'
               : ''}"
           >
-            {productDetails.preferred_gender ? productDetails.preferred_gender : "Select Gender"}
+            {productDetails.preferred_gender
+              ? productDetails.preferred_gender
+              : "Select Gender"}
           </Select.Trigger>
           <Select.Content>
             <Select.Group>
@@ -470,7 +537,7 @@
           </Select.Content>
         </Select.Root>
         <p class="text-red-500">
-          {validation.categories ? validation.categories : ""}
+          {validation.preferred_gender ? validation.preferred_gender : ""}
         </p>
       </div>
 
@@ -527,7 +594,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-3 gap-2">
         <div class="grid gap-2">
           <Label for="area">Selling Price</Label>
           <div class="relative">
@@ -535,6 +602,7 @@
               id="area"
               class="pl-8 {validation.selling_price ? 'border-red-500' : ''}"
               placeholder="Selling Price"
+              type="number"
               bind:value={productDetails.selling_price}
               on:input={sellingPriceValidation}
             />
@@ -547,12 +615,40 @@
           </div>
         </div>
         <div class="grid gap-2">
+          <Label for="security-level">GST</Label>
+          <Select.Root>
+            <Select.Trigger
+              class="input capitalize {validation.gst ? 'border-red-500' : ''}"
+            >
+              {selectedGst ? selectedGst : "Select a Gst"}
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Group>
+                {#each $gst as tax}
+                  <Select.Item
+                    value={tax.id}
+                    label={tax.name}
+                    class="capitalize card"
+                    on:click={() => handleTaxChange(tax.id)}
+                  >
+                    {tax.name}
+                  </Select.Item>
+                {/each}
+              </Select.Group>
+            </Select.Content>
+          </Select.Root>
+          <p class="text-red-500">
+            {validation.categories ? validation.categories : ""}
+          </p>
+        </div>
+        <div class="grid gap-2">
           <Label for="area">MRP</Label>
           <div class="relative">
             <Input
               id="area"
               class="pl-8 {validation.price ? 'border-red-500' : ''}"
               placeholder="MRP"
+              type="number"
               bind:value={productDetails.price}
               on:input={priceValidation}
             />
@@ -609,12 +705,13 @@
             bind:this={imageUpload}
             hidden
             multiple
-            accept="image/png, image/jpeg"
+            accept="image/png, image/jpeg, image/webp"
             on:change={uploadAvatar}
           />
         </div>
         <div
-          style="display:flex; justify-content: center; align-items: center; margin-top: 10px;"
+          style="display:flex; justify-content: center; 
+          align-items: center; margin-top: 10px;"
         >
           {#if productDetails.images.length > 0}
             <div class="image-preview-container">
@@ -640,8 +737,36 @@
       </div>
     {/if}
     <Dialog.Footer class="justify-between space-x-2">
-      <Button variant="ghost" on:click={() => cancelModel()}>Cancel</Button>
-      <Button on:click={() => createProduct()}>Save</Button>
+      <Button
+        variant="ghost"
+        on:click={() => cancelModel()}
+        disabled={isLoading}
+      >
+        Cancel
+      </Button>
+      {#if editForm === false}
+        <Button
+          on:click={() => createProduct()}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save
+        </Button>
+      {:else}
+        <Button
+          on:click={() => createProduct()}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
+        </Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

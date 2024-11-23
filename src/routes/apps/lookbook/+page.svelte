@@ -14,11 +14,11 @@
       class="text-3xl font-bold tracking-tight text-gray-800 dark:text-gray-200 flex-1">
       Lookbook
     </h4>
-    <div class="glow-border mr-4">
+    <!-- <div class="glow-border mr-4">
       <Button variant="outline" class="glow-border-content">
         Export Lookbook
       </Button>
-    </div>
+    </div> -->
     <div class="glow-border mr-4">
       <Button
         variant="outline"

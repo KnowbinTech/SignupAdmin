@@ -18,6 +18,7 @@
   import CaretSort from "svelte-radix/CaretSort.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import { compressImage } from "$lib/Functions/commonFunctions";
+  import { LoaderCircle } from "lucide-svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -27,6 +28,7 @@
   export let editForm: boolean;
   let updateImage: boolean = false;
   let validation: any = {};
+  let isLoading = false;
 
   let categoryDetails: any = {
     name: "",
@@ -67,7 +69,7 @@
     id = editData.id;
     tagInput = editData.tags.map((tag) => tag).join(", ");
     updateSelectionName();
-    selectedAttributeGroup = categoryDetails.attribute_group.name
+    selectedAttributeGroup = categoryDetails.attribute_group.name;
   }
 
   async function updateSelectionName() {
@@ -105,7 +107,11 @@
   }
 
   async function createCategory() {
+    if (isLoading) return;
+
     try {
+      isLoading = true;
+
       validation = {};
       categoryDetails.tags = tagInput
         .split(",")
@@ -129,6 +135,12 @@
       }
       if (categoryDetails.attribute_group == "") {
         validation.attribute_group = ["This field may not be blank."];
+      }
+
+      // Check if there are any validation errors
+      if (Object.keys(validation).length > 0) {
+        toast(`Please fill the required fields`);
+        return; // Stop execution if there are validation errors
       }
 
       const formData = new FormData();
@@ -162,22 +174,25 @@
         validation.tags
       ) {
         toast(`Please fill the required field`);
-      } else {
-        if (editForm) {
-          await API.put(url, formData);
-        } else {
-          await API.post(url, formData);
-        }
-
-        dispatch("newCategory");
-        const action = editForm ? "Category Updated" : "Category Created";
-        toast(`${action} successfully!`);
       }
+
+      if (editForm) {
+        await API.put(url, formData);
+      } else {
+        await API.post(url, formData);
+      }
+
+      dispatch("newCategory");
+      const action = editForm ? "Category Updated" : "Category Created";
+      toast(`${action} successfully!`);
+      dispatch("cancel");
     } catch (error: any) {
       const action = editForm ? "Update Category" : "Create Category";
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -196,15 +211,16 @@
   }
 
   async function uploadAvatar() {
-       if (imageUpload.files && imageUpload.files.length > 0) {
-      if(imageUpload.files[0].size/1024 > 45){
-        categoryDetails.image = await compressImage(imageUpload.files[0])
-        categoryDetails.image ? updateImage = true:'';
-              }
-      else{
-              categoryDetails.image = imageUpload.files[0];
-                    updateImage = true;
-
+    if (imageUpload.files && imageUpload.files.length > 0) {
+      if (imageUpload.files[0].size / 1024 > 45) {
+        categoryDetails.image = await compressImage(
+          imageUpload.files[0],
+          false
+        );
+        categoryDetails.image ? (updateImage = true) : "";
+      } else {
+        categoryDetails.image = imageUpload.files[0];
+        updateImage = true;
       }
     }
   }
@@ -299,7 +315,11 @@
         </div>
         <div>
           <Select.Root>
-            <Select.Trigger class="input capitalize {validation.attribute_group ? 'border-red-500' : ''}">
+            <Select.Trigger
+              class="input capitalize {validation.attribute_group
+                ? 'border-red-500'
+                : ''}"
+            >
               {selectedAttributeGroup
                 ? selectedAttributeGroup
                 : "Select a Attribute Group"}</Select.Trigger
@@ -424,14 +444,16 @@
         class={categoryDetails.image ? "showImg" : "hideImg"}
         src={updateImage
           ? window.URL.createObjectURL(categoryDetails.image)
-          : (editForm ?`${baseUrl}${categoryDetails.image}`:'')}
+          : editForm
+            ? `${baseUrl}${categoryDetails.image}`
+            : ""}
       />
       <input
         type="file"
         id="file-input"
         bind:this={imageUpload}
         hidden
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp"
         on:input={uploadAvatar}
       />
     </div>
@@ -439,11 +461,38 @@
     <!-- Assuming Select component exists and can handle multiple selections -->
 
     <Dialog.Footer>
-      <Button type="button" variant="ghost" on:click={cancelModel}
+      <Button
+        type="button"
+        variant="ghost"
+        on:click={cancelModel}
+        disabled={isLoading}
         >Cancel
       </Button>
-
-      <Button type="button" on:click={createCategory}>Save</Button>
+      {#if editForm === false}
+        <Button
+          type="button"
+          on:click={createCategory}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Save
+        </Button>
+      {:else}
+        <Button
+          type="button"
+          on:click={createCategory}
+          disabled={isLoading}
+          class="relative"
+        >
+          {#if isLoading}
+            <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+          {/if}
+          Update
+        </Button>
+      {/if}
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

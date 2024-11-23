@@ -32,6 +32,28 @@
   let editData: any;
   let editForm: boolean = false;
 
+  function isHexColor(value: string): boolean {
+    return value?.toString().match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/) !== null;
+  }
+
+  function parseValues(value: any): Array<{ value: string; isColor: boolean }> {
+    if (!value) return [];
+    
+    // Convert to string and handle different value types
+    const valueString = value.toString();
+    if (!valueString.includes(',')) {
+      return [{
+        value: valueString,
+        isColor: isHexColor(valueString)
+      }];
+    }
+    
+    return valueString.split(',').map(val => ({
+      value: val.trim(),
+      isColor: isHexColor(val.trim())
+    }));
+  }
+
   async function getAttribute() {
     try {
       let res = await API.get(
@@ -209,7 +231,24 @@
     {#each tableData as data}
       <Table.Row>
         <Table.Cell>{data.name}</Table.Cell>
-        <Table.Cell>{data.value}</Table.Cell>
+        <Table.Cell>
+          <div class="flex flex-wrap items-center gap-2">
+            {#each parseValues(data.value) as item}
+              <div class="flex items-center gap-1">
+                <span>{item.value}</span>
+                {#if item.isColor}
+                  <div
+                    class="w-4 h-4 rounded border border-gray-200"
+                    style="background-color: {item.value};"
+                  />
+                {/if}
+                {#if item !== parseValues(data.value).at(-1)}
+                  <span class="text-gray-400">,</span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </Table.Cell>
         <Table.Cell>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>
