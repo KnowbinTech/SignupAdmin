@@ -17,7 +17,6 @@
   const dispatch = createEventDispatcher();
   const reactiveImages = writable([]);
   const existingImages = writable([]); 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   interface VariantDetails {
     product: any;
@@ -469,7 +468,7 @@
                   <img 
                     class="w-32 h-32 object-cover rounded-md"
                     alt={image.alt_text || `variant-${index}`}
-                    src={`${baseUrl}${image.thumbnail || image.image}`}
+                    src={`${image.thumbnail || image.image}`}
                   />
                   <button 
                     class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"

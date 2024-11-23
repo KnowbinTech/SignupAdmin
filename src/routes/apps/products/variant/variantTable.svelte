@@ -13,6 +13,8 @@
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
   import { variantFormStore } from '$lib/stores/variantStore';
 
+  export let productId: any;
+  
   let dispatch = createEventDispatcher();
 
   let page: number = 1;
@@ -27,7 +29,6 @@
   let showDeleteModal = false;
   let deletingVariant: any;
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   function isHexColor(str: string) {
     return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(str);
@@ -49,17 +50,17 @@
     }
   }
 
-  let productId: any;
+  // let productId: any;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    productId = urlParams.get('product');
-    console.log("Product ID from URL:", productId);
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   productId = urlParams.get('product');
+  //   console.log("Product ID from URL:", productId);
 
-    if (productId) {
-      sessionStorage.setItem('productId', productId);
-    } else {
-      productId = sessionStorage.getItem('productId');
-    }
+  //   if (productId) {
+  //     sessionStorage.setItem('productId', productId);
+  //   } else {
+  //     productId = sessionStorage.getItem('productId');
+  //   }
 
   let hidableCoulumns: any[] = [
     { name: "Image", value: true },
@@ -265,7 +266,7 @@
             }}>
             {#if data.images && data.images.length > 0}
             <img
-              src={`${baseUrl}${data.images[0].image}`}
+              src={`${data.images[0].image}`}
               alt="variant_image"
               class="w-12 h-12 object-cover rounded-full"/>
             {:else}

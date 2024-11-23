@@ -5,7 +5,6 @@
   import { compressImage } from "$lib/Functions/commonFunctions";
 
   export let currentImages: { id: string; image: string }[] = [];
-  export let baseUrl: string;
   export let imagesToDelete: string[] = [];
   export let newImages: File[] = [];
   export let deselectedNewImages: File[] = [];
@@ -91,7 +90,7 @@
             />
           {:else}
             <img
-              src={`${baseUrl}${image.image}`}
+              src={`${image.image}`}
               alt="product_image"
               class="w-full h-full object-cover"
             />
