@@ -263,7 +263,7 @@
         {#if hidableCoulumns[0].value}
           <Table.Cell>
             <img
-              src={`${baseUrl}${data.feature_image}`}
+              src={`${data.feature_image}`}
               alt="feature_image"
               class="w-12 h-12 object-cover rounded-full"
             /></Table.Cell
