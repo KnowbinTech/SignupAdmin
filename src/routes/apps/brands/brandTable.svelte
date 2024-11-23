@@ -255,7 +255,7 @@
         {#if hidableCoulumns[0].value}
           <Table.Cell>
             <img
-              src={`${baseUrl}${data.logo}`}
+              src={`${data.logo}`}
               alt="Logo"
               class="w-12 h-12 object-cover rounded-full"
             /></Table.Cell
