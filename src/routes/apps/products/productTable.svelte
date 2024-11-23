@@ -239,7 +239,6 @@
     open={showImageUploadDialog}
     productId={selectedProductId || ''}
     currentImages={selectedProductImages}
-    baseUrl={baseUrl}
     on:close={closeImageUploadDialog}
     on:updateTableData={handleUpdateTableData}
   />
@@ -463,7 +462,7 @@
                 }
               }}>
               <img
-                src={`${baseUrl}${data.images[0].image}`}
+                src={`${data.images[0].image}`}
                 alt="product_image"
                 class="w-12 h-12 object-cover rounded-full"
               />

@@ -11,7 +11,6 @@
   export let open = false;
   export let productId: string;
   export let currentImages: { id: string; image: string }[] = [];
-  export let baseUrl: string;
 
   let newImages: File[] = [];
   let imagesToDelete: string[] = [];
@@ -71,7 +70,7 @@
       const updatedImages = res.data.images.map(
         (image: { id: string; image: string }) => ({
           id: image.id,
-          image: `${baseUrl}${image.image}`,
+          image: `${image.image}`,
         })
       );
 
@@ -95,7 +94,6 @@
     </Dialog.Header>
     <ImageUploadModal
       {currentImages}
-      {baseUrl}
       on:imagesUpdated={handleImagesUpdated}
       bind:newImages
       bind:imagesToDelete
