@@ -104,6 +104,7 @@
       type="file"
       multiple
       hidden
+      accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
       on:change={handleFileInput}
       bind:this={fileInput}
     />

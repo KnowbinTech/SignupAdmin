@@ -1,4 +1,5 @@
 import imageCompression from 'browser-image-compression';
+import heic2any from 'heic2any';
 
 export const compressImage = async (file: File, useQualityCompression: boolean) => {
     try {
@@ -60,38 +61,63 @@ export const compressImage = async (file: File, useQualityCompression: boolean) 
 };
 
 const convertToWebP = async (file: File): Promise<File> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+    console.log("heic image got to this function")
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (file.type === 'image/heic' || file.type === 'image/heif' || file.type === '') {
+                console.log("heic image")
+                // Convert HEIC to WebP directly using heic2any
+                const webPBlob = await heic2any({
+                    blob: file,
+                    toType: 'image/webp',
+                });
+                const webPFile = new File([webPBlob as Blob], file.name.replace(/\.\w+$/, '.webp'), {
+                    type: 'image/webp',
+                });
+                console.log({ webPFile })
+                resolve(webPFile);
+            } else {
+                // Convert other formats (e.g., JPEG, PNG) to WebP using canvas
+                console.log('else function executed')
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
 
-                const context = canvas.getContext('2d');
-                if (context) {
-                    context.drawImage(img, 0, 0);
-                    canvas.toBlob(
-                        (blob) => {
-                            if (blob) {
-                                const webPFile = new File([blob], 'converted.webp', { type: 'image/webp' });
-                                resolve(webPFile);
-                            } else {
-                                reject(new Error('WebP conversion failed.'));
-                            }
-                        },
-                        'image/webp',
-                        1.0 // Quality setting (1.0 = highest quality)
-                    );
-                } else {
-                    reject(new Error('Canvas context is not available.'));
-                }
-            };
-            img.src = event.target?.result as string;
-        };
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
+                        const context = canvas.getContext('2d');
+                        if (context) {
+                            context.drawImage(img, 0, 0);
+                            canvas.toBlob(
+                                (blob) => {
+                                    if (blob) {
+                                        const webPFile = new File(
+                                            [blob],
+                                            file.name.replace(/\.\w+$/, '.webp'),
+                                            { type: 'image/webp' }
+                                        );
+                                        resolve(webPFile);
+                                    } else {
+                                        reject(new Error('WebP conversion failed.'));
+                                    }
+                                },
+                                'image/webp',
+                                1.0 // Quality setting
+                            );
+                        } else {
+                            reject(new Error('Canvas context is not available.'));
+                        }
+                    };
+                    img.src = event.target?.result as string;
+                };
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            }
+        } catch (error) {
+            reject(new Error(`Failed to process the file: ${error.message}`));
+        }
     });
 };
 
