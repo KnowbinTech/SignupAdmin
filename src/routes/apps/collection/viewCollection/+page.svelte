@@ -17,7 +17,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   let collectionData: any = [];
 
@@ -236,7 +235,7 @@
             <Table.Cell>
               {#if data.images && data.images.length > 0}
                 <img
-                  src={`${baseUrl}${data.images[0].image}`}
+                  src={`${data.images[0].image}`}
                   alt="product_image"
                   class="w-12 h-12 object-cover rounded-full"
                 />

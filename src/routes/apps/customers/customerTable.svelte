@@ -11,7 +11,6 @@
   import { toast } from "svelte-sonner";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   let page: number = 1;
   let totalItems: number;
@@ -173,7 +172,7 @@
         {#if hidableCoulumns[0].value}
           <Table.Cell>
             <img
-              src={`${baseUrl}${data.profile_picture}`}
+              src={`${data.profile_picture}`}
               alt="profile_picture"
               class="w-12 h-12 object-cover rounded-full"
             /></Table.Cell

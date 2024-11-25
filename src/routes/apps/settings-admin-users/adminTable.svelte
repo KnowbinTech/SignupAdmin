@@ -15,7 +15,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   export let showForm: boolean = false;
   // variables to handle pagination and table details
@@ -263,7 +262,7 @@
       <Table.Row>
         <Table.Cell>
           <img
-            src={`${baseUrl}${data.profile_picture}`}
+            src={`${data.profile_picture}`}
             alt="profile_pic"
             class="w-12 h-12 object-cover rounded-full"
           /></Table.Cell

@@ -15,7 +15,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   let lookbookData: any = [];
   const urlParams = new URLSearchParams(window.location.search);
@@ -232,7 +231,7 @@
             <Table.Cell>
               {#if data.product.images && data.product.images.length > 0}
                 <img
-                  src={`${baseUrl}${data.product.images[0].image}`}
+                  src={`${data.product.images[0].image}`}
                   alt="product_image"
                   class="w-12 h-12 object-cover rounded-full"
                 />

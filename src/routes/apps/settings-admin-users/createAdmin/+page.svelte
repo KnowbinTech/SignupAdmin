@@ -9,8 +9,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
-
   export let editData;
   export let editForm: boolean;
   let updateImage: boolean = false;
@@ -154,7 +152,7 @@
         class={adminDetails.profile_picture ? "showImg" : "hideImg"}
         src={updateImage
           ? window.URL.createObjectURL(adminDetails.profile_picture)
-          : (editForm ? `${baseUrl}${adminDetails.profile_picture}`: '')}
+          : (editForm ? `${adminDetails.profile_picture}`: '')}
       />
       <input
         type="file"
