@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import API from "$lib/services/api";
   import { Button } from "$lib/components/ui/button";
   import { createEventDispatcher } from "svelte";
@@ -109,14 +108,9 @@
     }
   }
 
-  let tax :any[]
-onMount(()=>{
-  getTax()
-})
-
   async function getTax() {
     try {
-        let response = await API.get("/inventory/tax");
+        let response = await API.get("/inventory/tax/");
         return response.data.results
 
     } catch (error) {
