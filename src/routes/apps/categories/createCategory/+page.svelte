@@ -22,8 +22,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
-
   export let editData;
   export let editForm: boolean;
   let updateImage: boolean = false;
@@ -445,7 +443,7 @@
         src={updateImage
           ? window.URL.createObjectURL(categoryDetails.image)
           : editForm
-            ? `${baseUrl}${categoryDetails.image}`
+            ? `${categoryDetails.image}`
             : ""}
       />
       <input
@@ -453,7 +451,7 @@
         id="file-input"
         bind:this={imageUpload}
         hidden
-        accept="image/png, image/jpeg, image/webp"
+        accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
         on:input={uploadAvatar}
       />
     </div>
