@@ -11,7 +11,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   export let editData;
   export let editForm: boolean;
@@ -185,7 +184,7 @@
             src={updateImage
               ? window.URL.createObjectURL(heroDetails.image)
               : editForm
-                ? `${baseUrl}${heroDetails.image}`
+                ? `${heroDetails.image}`
                 : ""}
             alt="Avatar"
             class="showImg"
@@ -198,7 +197,7 @@
       bind:this={imageUpload}
       hidden
       required={!editForm}
-      accept="image/png, image/jpeg, image/webp"
+      accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
       on:change={uploadAvatar}
     />
   </div>
