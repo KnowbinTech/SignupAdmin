@@ -26,6 +26,7 @@
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
   let isLoading = false;
+  let isUpLoadingImage = false;
 
   if (editForm) {
     collectionDetails = editData;
@@ -45,6 +46,7 @@
   }
 
   async function uploadAvatar() {
+    isUpLoadingImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       if (imageUpload.files[0].size / 1024 > 45) {
         collectionDetails.feature_image = await compressImage(
@@ -65,6 +67,7 @@
         img.src = window.URL.createObjectURL(collectionDetails.feature_image);
       }
     }
+    isUpLoadingImage = false;
   }
 
   async function createCollection() {
@@ -191,18 +194,28 @@
       <Button type="button" variant="outline" on:click={pickAvatar}>
         <i class="fa-solid fa-image text-sm"></i>Upload Image
       </Button>
-
-      <img
-        id="selected-feature_image"
-        alt=""
-        class:showImg={collectionDetails.feature_image}
-        class:hideImg={!collectionDetails.feature_image}
-        src={updateImage
-          ? window.URL.createObjectURL(collectionDetails.feature_image)
-          : editForm
-            ? `${collectionDetails.feature_image}`
-            : ""}
-      />
+      {#if isUpLoadingImage}
+        <div class="flex gap-2">
+          loading...
+          <div class=" flex items-center justify-center bg-opacity-50">
+            <div
+              class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+            ></div>
+          </div>
+        </div>
+      {:else}
+        <img
+          id="selected-feature_image"
+          alt=""
+          class:showImg={collectionDetails.feature_image}
+          class:hideImg={!collectionDetails.feature_image}
+          src={updateImage
+            ? window.URL.createObjectURL(collectionDetails.feature_image)
+            : editForm
+              ? `${collectionDetails.feature_image}`
+              : ""}
+        />
+      {/if}
 
       <input
         type="file"
@@ -226,13 +239,13 @@
         <Button
           type="submit"
           on:click={createCollection}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Save
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Save
         </Button>
       {:else}
         <Button
