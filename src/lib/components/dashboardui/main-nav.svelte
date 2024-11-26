@@ -32,13 +32,13 @@
             icon: "fa-tag",
             route: "apps/products",
             items: [
+                {name: "Lookbook", page: "apps/lookbook"},
+                {name: "Collection", page: "apps/collection"},
                 {name: "Products", page: "apps/products"},
                 {name: "Categories", page: "apps/categories"},
                 {name: "Brands", page: "apps/brands"},
-                {name: "Collection", page: "apps/collection"},
-                {name: "Lookbook", page: "apps/lookbook"},
-                {name: "Attributes", page: "apps/attributes"},
                 {name: "Attribute Group", page: "apps/attribute-group"},
+                {name: "Attributes", page: "apps/attributes"},
             ]
         },
         {

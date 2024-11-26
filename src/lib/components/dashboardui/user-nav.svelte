@@ -6,7 +6,6 @@
 	import { UserStore } from "$lib/stores/data";
 	import { onMount } from "svelte";
 
-  	const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
 	let user: any;
 	function getUser()  {
@@ -27,7 +26,7 @@
 		<Button variant="ghost" builders={[builder]} class="relative h-8 w-8 rounded-full">
 			<Avatar.Root class="h-8 w-8">
 				{#if user?.profile_picture}
-					<Avatar.Image src={`${baseUrl}${user.profile_picture}`} alt="user" />
+					<Avatar.Image src={`${user.profile_picture}`} alt="user" />
 				{:else}
 					<Avatar.Fallback>A</Avatar.Fallback>
 				{/if}

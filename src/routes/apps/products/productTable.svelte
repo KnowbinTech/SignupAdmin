@@ -71,8 +71,6 @@
     { name: "Selling Price", value: true },
   ];
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
-
   async function getProducts() {
     try {
       let res = await API.get(

@@ -14,13 +14,13 @@
       >
         Orders
       </h4>
-      <div class="glow-border mr-4">
+      <!-- <div class="glow-border mr-4">
         <Button
           variant="outline"
           class="text-xs flex items-center gap-2  px-4 py-1.5"
-          >Export Customers</Button
+          >Export</Button
         >
-      </div>
+      </div> -->
     </div>
     <OrderTable />
   </div>

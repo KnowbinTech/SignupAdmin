@@ -1,5 +1,7 @@
 <script lang="ts">
   import * as Table from "$lib/components/ui/table/index.js";
+    import logo from "$lib/images/SIGNUP_LOGO.png";
+
 </script>
 
 <div class=" p-10">
@@ -10,8 +12,7 @@
       <p>(address)</p>
     </div>
     <div class="flex justify-end">
-      <!-- <img src="" alt="logo"> -->
-      logo
+      <img src={logo} alt="logo" class="h-20">
     </div>
   </div>
   <hr />

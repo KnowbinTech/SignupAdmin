@@ -9,7 +9,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   export let editData: any;
   let productData: any = {};
@@ -40,7 +39,7 @@
                                       <Card.Content
                                         class="flex aspect-square items-center justify-center p-6"
                                       >
-                                         <img src={`${baseUrl}${image.image}`} alt={`Image ${i + 1}`} />
+                                         <img src={`${image.image}`} alt={`Image ${i + 1}`} />
                                       </Card.Content>
                                     </Card.Root>
                                   </div>

@@ -28,7 +28,6 @@ import Sun from "svelte-radix/Sun.svelte";
     
       <div class="ml-auto flex  items-center space-x-4">
         
-          <Search />
           <UserNav />
           <div class="glow-border">
           <Button on:click={toggleMode}  variant="outline" size="icon">

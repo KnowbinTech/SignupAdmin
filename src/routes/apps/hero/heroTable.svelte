@@ -15,7 +15,6 @@
 
   const dispatch = createEventDispatcher();
 
-  const baseUrl: string = import.meta.env.VITE_BASE_URL as string;
 
   export let showForm: boolean = false;
   // variables to handle pagination and table details

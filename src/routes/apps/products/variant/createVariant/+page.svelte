@@ -452,7 +452,7 @@
           bind:this={imageUpload}
           hidden
           multiple
-          accept="image/png, image/jpeg, image/webp"
+          accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
           on:input={uploadAvatar}
         />
         <div class="flex gap-2">
