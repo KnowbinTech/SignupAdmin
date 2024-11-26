@@ -28,6 +28,7 @@
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
   let isLoading = false;
+  let isUpLoadingImage = false;
 
   const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
   // This function processes the tag input when the user types or pastes the tags
@@ -56,7 +57,6 @@
   const reactiveImages = writable([]);
 
   if (editForm) {
-
     productDetails = editData;
 
     selectedCategory = productDetails.categories[0]
@@ -110,9 +110,8 @@
 
   async function getTax() {
     try {
-        let response = await API.get("/inventory/tax/");
-        return response.data.results
-
+      let response = await API.get("/inventory/tax/");
+      return response.data.results;
     } catch (error) {
       console.error("fetch:gst:", error);
     }
@@ -124,7 +123,6 @@
     });
   });
 
-  
   function handleTaxChange(selectedTaxId: string) {
     editCategory = true;
     productDetails.gst = selectedTaxId;
@@ -136,7 +134,6 @@
       selectedGst = foundTax.name;
     }
   }
-
 
   async function getCategory() {
     try {
@@ -268,7 +265,6 @@
         validation.dimension ||
         validation.tags
       ) {
-
         toast(`Please fill the required field`);
       } else {
         const form = new FormData();
@@ -341,20 +337,15 @@
 
   async function uploadAvatar() {
     editImage = true;
+    isUpLoadingImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       for (let i = 0; i < imageUpload.files.length; i++) {
-        
         if (imageUpload.files[i].size / 1024 > 45) {
-          let image = await compressImage(
-          imageUpload.files[i],
-          true
-        );
-        productDetails.images.push(image)
-      } else {
-        productDetails.images.push(imageUpload.files[i]);
-      }
-
-        
+          let image = await compressImage(imageUpload.files[i], true);
+          productDetails.images.push(image);
+        } else {
+          productDetails.images.push(imageUpload.files[i]);
+        }
       }
       // Update the reactiveImages store
       reactiveImages.set(productDetails.images);
@@ -368,6 +359,7 @@
         );
       }
     }
+    isUpLoadingImage = false;
   }
   function removeImage(index: any) {
     const newImages = [...$reactiveImages];
@@ -419,7 +411,12 @@
   }
 </script>
 
-<Dialog.Root open={true} onOpenChange={cancelModel} preventScroll={true} closeOnOutsideClick={false}>
+<Dialog.Root
+  open={true}
+  onOpenChange={cancelModel}
+  preventScroll={true}
+  closeOnOutsideClick={false}
+>
   <Dialog.Content class=" max-h-svh overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>{editForm ? "Edit Product" : "Add Product"}</Dialog.Title>
@@ -707,24 +704,39 @@
           style="display:flex; justify-content: center; 
           align-items: center; margin-top: 10px;"
         >
-          {#if productDetails.images.length > 0}
+          {#if productDetails.images.length > 0 || isUpLoadingImage}
             <div class="image-preview-container">
+             {#if isUpLoadingImage}
+                    <div class="flex gap-2">
+                      loading...
+                      <div
+                        class=" flex items-center justify-center bg-opacity-50"
+                      >
+                        <div
+                          class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+                        ></div>
+                    </div>
+                    </div>
+                  {:else}
               {#each $reactiveImages as image, index}
                 <div class="image-container">
-                  <img
-                    id="selected-logo-{index}"
-                    class="selected-logo w-32 h-32 object-cover rounded-md"
-                    alt=""
-                    src={window.URL.createObjectURL(image)}
-                  />
-                  <button
-                    class="remove-btn"
-                    on:click={() => removeImage(index)}
-                  >
-                    &times;
-                  </button>
+                 
+                    <img
+                      id="selected-logo-{index}"
+                      class="selected-logo w-32 h-32 object-cover rounded-md"
+                      alt=""
+                      src={window.URL.createObjectURL(image)}
+                    />
+                    <button
+                      class="remove-btn"
+                      on:click={() => removeImage(index)}
+                    >
+                      &times;
+                    </button>
+                 
                 </div>
               {/each}
+               {/if}
             </div>
           {/if}
         </div>
@@ -741,13 +753,13 @@
       {#if editForm === false}
         <Button
           on:click={() => createProduct()}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Save
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Save
         </Button>
       {:else}
         <Button
