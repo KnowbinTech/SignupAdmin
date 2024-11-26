@@ -7,7 +7,7 @@
   import { toast } from "svelte-sonner";
 
   function goBack() {
-    goto("/lookbook");
+    history.back();
   }
 </script>
 
