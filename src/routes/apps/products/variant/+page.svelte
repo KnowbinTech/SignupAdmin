@@ -22,7 +22,7 @@
   });
 
   function goBack() {
-    goto("/products");
+    history.back()
   }
 
   function handleVariantSuccess() {
