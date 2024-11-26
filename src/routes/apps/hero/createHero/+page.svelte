@@ -8,15 +8,16 @@
   import { toast } from "svelte-sonner";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { compressImage } from "$lib/Functions/commonFunctions";
+  import { LoaderCircle } from "lucide-svelte";
 
   const dispatch = createEventDispatcher();
-
 
   export let editData;
   export let editForm: boolean;
   let updateImage: boolean = false;
   let validation: any = {};
-
+  let isLoading = false;
+  let isUpLoadingImage = false;
   let heroDetails: any = {
     id: "",
     title: "",
@@ -37,6 +38,7 @@
   }
 
   async function uploadAvatar() {
+    isUpLoadingImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       if (imageUpload.files[0].size / 1024 > 45) {
         heroDetails.image = await compressImage(imageUpload.files[0], true);
@@ -46,10 +48,13 @@
         updateImage = true;
       }
     }
+    isUpLoadingImage = false;
   }
 
   async function createHero() {
+    if (isLoading) return;
     try {
+      isLoading = true;
       validation = {};
 
       if (heroDetails.title == "") {
@@ -68,8 +73,8 @@
         validation.link = ["This field may not be blank."];
       }
       if (!heroDetails.image && !editForm) {
-      validation.image = ["Image is required."];
-    }
+        validation.image = ["Image is required."];
+      }
       if (
         validation.short_description ||
         validation.title ||
@@ -110,6 +115,8 @@
       console.log(`${action}:`, error);
       validation = error.response.data;
       toast(`Failed to ${action}`);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -179,8 +186,19 @@
         <i class="fa-solid fa-image text-sm"></i>Upload image
       </Button>
       <label for="file-input">
-        {#if heroDetails.image}
+        {#if isUpLoadingImage}
+          <div class="flex gap-2">
+            loading...
+            <div class=" flex items-center justify-center bg-opacity-50">
+              <div
+                class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+              ></div>
+            </div>
+          </div>
+        {:else}
           <img
+            class:showImg={heroDetails.image}
+            class:hideImg={!heroDetails.image}
             src={updateImage
               ? window.URL.createObjectURL(heroDetails.image)
               : editForm
@@ -192,31 +210,42 @@
         {/if}
       </label>
       <input
-      type="file"
-      id="file-input"
-      bind:this={imageUpload}
-      hidden
-      required={!editForm}
-      accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
-      on:change={uploadAvatar}
-    />
-  </div>
-  <p class="text-red-500">{validation.image ? validation.image : ""}</p>
+        type="file"
+        id="file-input"
+        bind:this={imageUpload}
+        hidden
+        required={!editForm}
+        accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
+        on:change={uploadAvatar}
+      />
+    </div>
+    <p class="text-red-500">{validation.image ? validation.image : ""}</p>
     <Dialog.Footer class="justify-between space-x-2">
       <Button type="button" variant="ghost" on:click={cancelModel}
         >Cancel</Button
       >
-      <Button type="submit" on:click={createHero}>Save</Button>
+      <Button
+        type="submit"
+        disabled={isLoading || isUpLoadingImage}
+        on:click={createHero}
+        >{editForm ? "Update" : "Save"}
+        {#if isLoading || isUpLoadingImage}
+          <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
+        {/if}</Button
+      >
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
 
 <style>
+  .hideImg {
+    display: none;
+  }
+
   .showImg {
     display: block;
     height: 6rem;
     width: 6rem;
-    flex: none;
     border-radius: 20px;
     object-fit: cover;
   }
