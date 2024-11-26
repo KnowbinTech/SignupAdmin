@@ -14,7 +14,6 @@
 
   const dispatch = createEventDispatcher();
 
-
   export let editData: any;
   export let editForm: boolean;
   let updateImage: boolean = false;
@@ -194,29 +193,27 @@
       <Button type="button" variant="outline" on:click={pickAvatar}>
         <i class="fa-solid fa-image text-sm"></i>Upload Image
       </Button>
-{#if isUpLoadingImage}
-                    <div class="flex gap-2">
-                      loading...
-                      <div
-                        class=" flex items-center justify-center bg-opacity-50"
-                      >
-                        <div
-                          class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
-                        ></div>
-                    </div>
-                    </div>
-                  {:else}
-      <img
-        id="selected-feature_image"
-        alt=""
-        class:showImg={lookbookDetails.feature_image}
-        class:hideImg={!lookbookDetails.feature_image}
-        src={updateImage
-          ? window.URL.createObjectURL(lookbookDetails.feature_image)
-          : editForm
-            ? `${lookbookDetails.feature_image}`
-            : ""}
-      />
+      {#if isUpLoadingImage}
+        <div class="flex gap-2">
+          loading...
+          <div class=" flex items-center justify-center bg-opacity-50">
+            <div
+              class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+            ></div>
+          </div>
+        </div>
+      {:else}
+        <img
+          id="selected-feature_image"
+          alt=""
+          class:showImg={lookbookDetails.feature_image}
+          class:hideImg={!lookbookDetails.feature_image}
+          src={updateImage
+            ? window.URL.createObjectURL(lookbookDetails.feature_image)
+            : editForm
+              ? `${lookbookDetails.feature_image}`
+              : ""}
+        />
       {/if}
 
       <input
@@ -243,7 +240,7 @@
           class="relative"
         >
           Save
-           {#if isLoading || isUpLoadingImage}
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
         </Button>
@@ -251,13 +248,13 @@
         <Button
           type="submit"
           on:click={createLookbook}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Update
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Update
         </Button>
       {/if}
     </Dialog.Footer>

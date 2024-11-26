@@ -19,6 +19,7 @@
   let updateImage: boolean = false;
   let validation: any = {};
   let isLoading = false;
+  let isUpLoadingImage = false;
 
   let brandDetails = {
     name: "",
@@ -43,6 +44,7 @@
   }
 
   async function uploadAvatar() {
+    isUpLoadingImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       if (imageUpload.files[0].size / 1024 > 45) {
         brandDetails.logo = await compressImage(imageUpload.files[0], false);
@@ -52,6 +54,7 @@
         updateImage = true;
       }
     }
+    isUpLoadingImage = false;
   }
 
   async function createBrand() {
@@ -144,18 +147,28 @@
       <Button type="button" variant="outline" on:click={pickAvatar}>
         <i class="fa-solid fa-image text-sm"></i>Upload Logo
       </Button>
-
-      <img
-        id="selected-logo"
-        alt="logo"
-        class:showImg={brandDetails.logo}
-        class:hideImg={!brandDetails.logo}
-        src={updateImage
-          ? window.URL.createObjectURL(brandDetails.logo)
-          : editForm
-            ? `${brandDetails.logo}`
-            : ""}
-      />
+      {#if isUpLoadingImage}
+        <div class="flex gap-2">
+          loading...
+          <div class=" flex items-center justify-center bg-opacity-50">
+            <div
+              class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+            ></div>
+          </div>
+        </div>
+      {:else}
+        <img
+          id="selected-logo"
+          alt="logo"
+          class:showImg={brandDetails.logo}
+          class:hideImg={!brandDetails.logo}
+          src={updateImage
+            ? window.URL.createObjectURL(brandDetails.logo)
+            : editForm
+              ? `${brandDetails.logo}`
+              : ""}
+        />
+      {/if}
 
       <input
         type="file"
@@ -177,25 +190,25 @@
         <Button
           type="submit"
           on:click={createBrand}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Save
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Save
         </Button>
       {:else}
         <Button
           type="submit"
           on:click={createBrand}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Update
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Update
         </Button>
       {/if}
     </Dialog.Footer>

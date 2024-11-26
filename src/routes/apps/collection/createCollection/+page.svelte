@@ -251,13 +251,13 @@
         <Button
           type="submit"
           on:click={createCollection}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Update
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Update
         </Button>
       {/if}
     </Dialog.Footer>

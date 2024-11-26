@@ -706,21 +706,18 @@
         >
           {#if productDetails.images.length > 0 || isUpLoadingImage}
             <div class="image-preview-container">
-             {#if isUpLoadingImage}
-                    <div class="flex gap-2">
-                      loading...
-                      <div
-                        class=" flex items-center justify-center bg-opacity-50"
-                      >
-                        <div
-                          class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
-                        ></div>
-                    </div>
-                    </div>
-                  {:else}
-              {#each $reactiveImages as image, index}
-                <div class="image-container">
-                 
+              {#if isUpLoadingImage}
+                <div class="flex gap-2">
+                  loading...
+                  <div class=" flex items-center justify-center bg-opacity-50">
+                    <div
+                      class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+                    ></div>
+                  </div>
+                </div>
+              {:else}
+                {#each $reactiveImages as image, index}
+                  <div class="image-container">
                     <img
                       id="selected-logo-{index}"
                       class="selected-logo w-32 h-32 object-cover rounded-md"
@@ -733,10 +730,9 @@
                     >
                       &times;
                     </button>
-                 
-                </div>
-              {/each}
-               {/if}
+                  </div>
+                {/each}
+              {/if}
             </div>
           {/if}
         </div>
@@ -764,13 +760,13 @@
       {:else}
         <Button
           on:click={() => createProduct()}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Update
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Update
         </Button>
       {/if}
     </Dialog.Footer>

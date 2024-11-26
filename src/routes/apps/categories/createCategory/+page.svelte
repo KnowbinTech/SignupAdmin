@@ -49,6 +49,7 @@
   let imageUpload: any;
   let attributeChange: boolean = false;
   let tagInput: string = ""; // Holds the raw tag input from the user
+  let isUpLoadingImage = false;
 
   let open: boolean = false;
 
@@ -209,6 +210,7 @@
   }
 
   async function uploadAvatar() {
+    isUpLoadingImage = true;
     if (imageUpload.files && imageUpload.files.length > 0) {
       if (imageUpload.files[0].size / 1024 > 45) {
         categoryDetails.image = await compressImage(
@@ -221,6 +223,7 @@
         updateImage = true;
       }
     }
+    isUpLoadingImage = false;
   }
 
   // Mount
@@ -436,16 +439,27 @@
         on:click={pickAvatar}
         ><i class="fa-solid fa-image text-sm"></i>Upload category image
       </Button>
-      <img
-        id="selected-logo"
-        alt=""
-        class={categoryDetails.image ? "showImg" : "hideImg"}
-        src={updateImage
-          ? window.URL.createObjectURL(categoryDetails.image)
-          : editForm
-            ? `${categoryDetails.image}`
-            : ""}
-      />
+      {#if isUpLoadingImage}
+        <div class="flex gap-2">
+          loading...
+          <div class=" flex items-center justify-center bg-opacity-50">
+            <div
+              class="animate-spin rounded-full size-5 border-t-2 border-b-2 border-blue-500"
+            ></div>
+          </div>
+        </div>
+      {:else}
+        <img
+          id="selected-logo"
+          alt=""
+          class={categoryDetails.image ? "showImg" : "hideImg"}
+          src={updateImage
+            ? window.URL.createObjectURL(categoryDetails.image)
+            : editForm
+              ? `${categoryDetails.image}`
+              : ""}
+        />
+      {/if}
       <input
         type="file"
         id="file-input"
@@ -470,25 +484,25 @@
         <Button
           type="button"
           on:click={createCategory}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Save
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Save
         </Button>
       {:else}
         <Button
           type="button"
           on:click={createCategory}
-          disabled={isLoading}
+          disabled={isLoading || isUpLoadingImage}
           class="relative"
         >
-          {#if isLoading}
+          Update
+          {#if isLoading || isUpLoadingImage}
             <LoaderCircle class="animate-spin mr-2 h-4 w-4" />
           {/if}
-          Update
         </Button>
       {/if}
     </Dialog.Footer>
