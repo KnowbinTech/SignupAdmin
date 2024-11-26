@@ -96,7 +96,7 @@
   function pageLimit(event: any, value: any) {}
   function goBack() {
     localStorage.removeItem("collectionId");
-    goto("/collection/");
+    history.back();
   }
 </script>
 

@@ -409,6 +409,12 @@
       validation.short_description = "";
     }
   }
+
+   // Function to allow only numbers
+  function handleInput(event:any) {
+    const value = event.target.value;
+    productDetails.hsn_code = value.replace(/\D/g, ''); // Remove non-numeric characters
+  }
 </script>
 
 <Dialog.Root
@@ -659,6 +665,7 @@
             id="area"
             placeholder="HSN Code"
             bind:value={productDetails.hsn_code}
+            on:input={handleInput}
             class={validation.hsn_code ? "border-red-500" : ""}
           />
           <p class="text-red-500">
