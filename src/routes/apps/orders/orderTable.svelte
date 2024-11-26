@@ -11,6 +11,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
+  import Invoice from "./invoice/+page.svelte"
 
   // variables to handle pagination and table details
   let page: number = 1;
@@ -20,6 +21,8 @@
   let sortData: boolean = true;
   let sortField: string = "";
   let searchData: string = "";
+  let isOpenInvoice: boolean = false
+  let invoiceData:any = {}
 
   let hidableCoulumns: any[] = [
     { name: "Email", value: false },
@@ -33,6 +36,7 @@
     { name: "Created By", value: false },
     { name: "Updated By", value: false },
   ];
+
 
   async function getOrders() {
     try {
@@ -118,8 +122,8 @@
   }
 
   function handleInvoice(data: any) {
-    console.log(data);
-    goto(`/orders/invoice/`);
+    invoiceData = data
+    isOpenInvoice = !isOpenInvoice
   }
 
   onMount(() => {
@@ -149,6 +153,9 @@
   }
 </script>
 
+{#if isOpenInvoice}
+<Invoice {invoiceData} on:close={()=>isOpenInvoice = false}/>
+{/if}
 <div class="w-full p-5">
   <div class="my-2 flex justify-between">
     <div>
