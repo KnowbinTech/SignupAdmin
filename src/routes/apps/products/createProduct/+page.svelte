@@ -24,7 +24,7 @@
   let editBrand: boolean = false;
   let editCategory: boolean = false;
   let editImage: boolean = false;
-  let editTag: boolean = false;
+  let editTax: boolean = false;
   let tagInput: string = ""; // Holds the raw tag input from the user
   let validation: any = {};
   let isLoading = false;
@@ -58,12 +58,17 @@
 
   if (editForm) {
     productDetails = editData;
-
-    selectedCategory = productDetails.categories[0]
+    if(productDetails) {
+      selectedCategory = productDetails.categories[0]
       ? productDetails.categories[0].name
       : "";
     selectedBrand = productDetails.brand ? productDetails.brand.name : "";
+      selectedGst = productDetails.gst
+      ? productDetails.gst.name
+      : "";
     tagInput = productDetails.tags.map((tag: any) => tag).join(",");
+    }
+    
   }
 
   type Brand = {
@@ -124,7 +129,7 @@
   });
 
   function handleTaxChange(selectedTaxId: string) {
-    editCategory = true;
+    editTax = true;
     productDetails.gst = selectedTaxId;
     const taxArray = $gst;
     const foundTax = taxArray.find(
@@ -273,6 +278,11 @@
         }
         if (!editCategory) {
           productDetails.categories = productDetails.categories[0].id;
+        }
+
+        if(!editTax){
+          console.log(productDetails.gst)
+          productDetails.gst = productDetails.gst.id
         }
         form.append("name", productDetails.name);
         form.append("short_description", productDetails.short_description);

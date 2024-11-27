@@ -19,26 +19,26 @@ export const compressImage = async (file: File, useQualityCompression: boolean) 
             // Dynamically adjust options based on the size of the image
             if (originalSizeMB > 40) {
                 options = {
-                    maxSizeMB: .3,
-                    maxWidthOrHeight: 1500,
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1000,
                     useWebWorker: true,
                 };
             } else if (originalSizeMB > 20) {
                 options = {
-                    maxSizeMB: 0.3,
-                    maxWidthOrHeight: 1200,
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1500,
                     useWebWorker: true,
                 };
             } else if (originalSizeMB > 10) {
                 options = {
-                    maxSizeMB: 0.3,
-                    maxWidthOrHeight: 800,
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1500,
                     useWebWorker: true,
                 };
             } else {
                 options = {
-                    maxSizeMB: 0.3,
-                    maxWidthOrHeight: 500,
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1500,
                     useWebWorker: true,
                 };
             }
