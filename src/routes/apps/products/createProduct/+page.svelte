@@ -58,16 +58,17 @@
 
   if (editForm) {
     productDetails = editData;
-
-    selectedGst = productDetails.gst
-      ? productDetails.gst.name
-      : "";
-
-    selectedCategory = productDetails.categories[0]
+    if(productDetails) {
+      selectedCategory = productDetails.categories[0]
       ? productDetails.categories[0].name
       : "";
     selectedBrand = productDetails.brand ? productDetails.brand.name : "";
+      selectedGst = productDetails.gst
+      ? productDetails.gst.name
+      : "";
     tagInput = productDetails.tags.map((tag: any) => tag).join(",");
+    }
+    
   }
 
   type Brand = {
