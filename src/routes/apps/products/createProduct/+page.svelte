@@ -46,8 +46,8 @@
     brand: "",
     is_disabled: false,
     hsn_code: "",
-    rating: 0,
-    noOfReviews: 0,
+    rating: null,
+    no_of_reviews: null,
     tags: [],
     dimension: "",
     images: [],
@@ -58,17 +58,14 @@
 
   if (editForm) {
     productDetails = editData;
-    if(productDetails) {
+    if (productDetails) {
       selectedCategory = productDetails.categories[0]
-      ? productDetails.categories[0].name
-      : "";
-    selectedBrand = productDetails.brand ? productDetails.brand.name : "";
-      selectedGst = productDetails.gst
-      ? productDetails.gst.name
-      : "";
-    tagInput = productDetails.tags.map((tag: any) => tag).join(",");
+        ? productDetails.categories[0].name
+        : "";
+      selectedBrand = productDetails.brand ? productDetails.brand.name : "";
+      selectedGst = productDetails.gst ? productDetails.gst.name : "";
+      tagInput = productDetails.tags.map((tag: any) => tag).join(",");
     }
-    
   }
 
   type Brand = {
@@ -257,6 +254,8 @@
 
       if (
         validation.name ||
+        validation.rating ||
+        validation.no_of_reviews ||
         validation.short_description ||
         validation.description ||
         validation.preferred_gender ||
@@ -280,9 +279,9 @@
           productDetails.categories = productDetails.categories[0].id;
         }
 
-        if(!editTax){
-          console.log(productDetails.gst)
-          productDetails.gst = productDetails.gst.id
+        if (!editTax) {
+          console.log(productDetails.gst);
+          productDetails.gst = productDetails.gst.id;
         }
         form.append("name", productDetails.name);
         form.append("short_description", productDetails.short_description);
@@ -298,7 +297,7 @@
         form.append("is_disabled", productDetails.is_disabled);
         form.append("hsn_code", productDetails.hsn_code);
         form.append("rating", productDetails.rating);
-        form.append("noOfReviews", productDetails.noOfReviews);
+        form.append("no_of_reviews", productDetails.no_of_reviews);
         form.append("tags", productDetails.tags);
         form.append("preferred_gender", productDetails.preferred_gender);
 
@@ -420,10 +419,31 @@
     }
   }
 
-   // Function to allow only numbers
-  function handleInput(event:any) {
+  // Function to allow only numbers
+  function handleInput(event: any) {
     const value = event.target.value;
-    productDetails.hsn_code = value.replace(/\D/g, ''); // Remove non-numeric characters
+    productDetails.hsn_code = value.replace(/\D/g, ""); // Remove non-numeric characters
+  }
+
+  // Function to allow only numbers in number of reviews
+  function handleInputReview(event: any) {
+    const value = event.target.value;
+    productDetails.no_of_reviews = value.replace(/\D/g, "").replace(/^0+/, ""); // Remove non-numeric characters
+  }
+
+  function validateRating(event: any) {
+    const input = event.target.value;
+
+    // Regular expression to allow numbers between 0 and 5, including float values
+    const validNumberPattern = /^([0-4](\.\d{0,2})?|5(\.0{0,2})?)?$/;
+
+    // Check if the input matches the valid pattern
+    if (!validNumberPattern.test(input)) {
+      validation.rating = "Please add number less than 5"; // Revert to the last valid value
+    } else {
+      productDetails.rating = input; // Update the model with valid input
+      validation.rating = "";
+    }
   }
 </script>
 
@@ -506,7 +526,7 @@
     </div>
 
     <div class="grid grid-cols-3 items-end gap-4">
-      <div class="grid gap-2">
+      <div class="grid gap-2 col-span-2">
         <Label for="tags">Tags</Label>
         <Input
           id="tags"
@@ -547,7 +567,9 @@
           {validation.preferred_gender ? validation.preferred_gender : ""}
         </p>
       </div>
+    </div>
 
+    <div class="grid grid-cols-2 gap-4">
       <div class="grid gap-2">
         <div class=" flex justify-start gap-10">
           <Label for="subject">Short description</Label>
@@ -570,6 +592,35 @@
         <p class="text-red-500">
           {validation.short_description ? validation.short_description : ""}
         </p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="grid gap-2">
+          <Label for="Ratings">Ratings</Label>
+          <Input
+            id="Ratings"
+            placeholder="Add Ratings."
+            bind:value={productDetails.rating}
+            class={validation.rating ? "border-red-500" : ""}
+            on:input={validateRating}
+          />
+          <p class="text-red-500">
+            {validation.rating ? validation.rating : ""}
+          </p>
+        </div>
+
+        <div class="grid gap-2">
+          <Label for="Reviews">Number of Reviews</Label>
+          <Input
+            id="Reviews"
+            placeholder="Add Number of Reviews."
+            bind:value={productDetails.no_of_reviews}
+            class={validation.no_of_reviews ? "border-red-500" : ""}
+            on:input={handleInputReview}
+          />
+          <p class="text-red-500">
+            {validation.no_of_reviews ? validation.no_of_reviews : ""}
+          </p>
+        </div>
       </div>
     </div>
 
