@@ -24,10 +24,6 @@
     { name: "Payment Status", value: false },
     { name: "Payment Method", value: false },
     { name: "Total Amount", value: true },
-    { name: "Created At", value: false },
-    { name: "Updated At", value: false },
-    { name: "Created By", value: false },
-    { name: "Updated By", value: false },
   ];
 
 
