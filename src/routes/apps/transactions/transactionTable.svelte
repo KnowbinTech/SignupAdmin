@@ -88,16 +88,6 @@
       />
     </div>
     <div class="flex">
-      <div class="mr-2">
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
-            <Button variant="outline" size="sm">
-              Column
-              <ChevronDown class="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenu.Trigger>
-        </DropdownMenu.Root>
-      </div>
       <div>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
