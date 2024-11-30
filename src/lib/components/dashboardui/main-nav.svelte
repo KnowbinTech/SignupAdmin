@@ -23,8 +23,17 @@
             //route: "/orders",
             items: [
                 {name: "Order Management", page: "apps/orders"},
+                {name: "Transations", page: "apps/Transations"},
                 {name: "Returns and Refunds", page: "apps/returns"},
                 {name: "Invoices", page: "apps/invoices"},
+            ]
+        },
+        {
+            name: "Transactions",
+            icon: "fa-cart-shopping",
+            //route: "/orders",
+            items: [
+                {name: "Order Management", page: "apps/orders"}
             ]
         },
         {

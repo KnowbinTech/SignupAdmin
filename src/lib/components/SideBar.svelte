@@ -23,6 +23,14 @@
       ]
     },
     {
+      name: "Transactions",
+      icon: "fa-cart-shopping",
+      //route: "/orders",
+      items: [
+        { name: "Order Management", page: "/apps/orders" },
+      ]
+    },
+    {
       name: "Products",
       icon: "fa-tag",
       route: "/products",
