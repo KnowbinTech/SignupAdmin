@@ -11,7 +11,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
-  import Invoice from "./invoice/+page.svelte"
+  // import Invoice from "./invoice/+page.svelte"
 
   // variables to handle pagination and table details
   let page: number = 1;
@@ -153,9 +153,9 @@
   }
 </script>
 
-{#if isOpenInvoice}
+<!-- {#if isOpenInvoice}
 <Invoice {invoiceData} on:close={()=>isOpenInvoice = false}/>
-{/if}
+{/if} -->
 <div class="w-full p-5">
   <div class="my-2 flex justify-between">
     <div>
