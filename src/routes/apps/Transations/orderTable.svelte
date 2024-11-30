@@ -8,7 +8,7 @@
   import API from "$lib/services/api";
   import { onMount } from "svelte";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
-  
+
   let page: number = 1;
   let totalItems: number;
   let per_page: number = 10;
@@ -179,7 +179,7 @@
           <Table.Cell>{data.amount}</Table.Cell>
         {/if}
         {#if hidableCoulumns[1].value}
-          <Table.Cell>{data.order}</Table.Cell>
+          <Table.Cell>{data.order.order_id}</Table.Cell>
         {/if}
         {#if hidableCoulumns[2].value}
           <Table.Cell>{data.status}</Table.Cell>
