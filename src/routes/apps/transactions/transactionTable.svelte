@@ -18,16 +18,7 @@
   let searchData: string = "";
 
   let hidableCoulumns: any[] = [
-    { name: "Email", value: false },
-    { name: "Description", value: true },
-    { name: "Order Status", value: true },
-    { name: "Payment Status", value: false },
-    { name: "Payment Method", value: false },
-    { name: "Total Amount", value: true },
-    { name: "Created At", value: false },
-    { name: "Updated At", value: false },
-    { name: "Created By", value: false },
-    { name: "Updated By", value: false },
+    { name: "Error", value: false },
   ];
 
 
@@ -147,28 +138,28 @@
     <Table.Header>
       <Table.Row>
         <Table.Head
-          >transaction_id
+          >Transaction_id
           <Button on:click={() => sortName()} variant="ghost"
             ><CaretSort class="w-4 h-4" /></Button
           >
         </Table.Head>
         {#if hidableCoulumns[0].value}
-          <Table.Head>amount</Table.Head>
+          <Table.Head>Amount</Table.Head>
         {/if}
         {#if hidableCoulumns[1].value}
-          <Table.Head>order</Table.Head>
+          <Table.Head>Order ID</Table.Head>
         {/if}
         {#if hidableCoulumns[2].value}
           <Table.Head>Status</Table.Head>
         {/if}
         {#if hidableCoulumns[3].value}
-          <Table.Head>response</Table.Head>
+          <Table.Head>Response</Table.Head>
         {/if}
         {#if hidableCoulumns[4].value}
-          <Table.Head>error</Table.Head>
+          <Table.Head>Error</Table.Head>
         {/if}
         {#if hidableCoulumns[5].value}
-          <Table.Head>response_received_date</Table.Head>
+          <Table.Head>Response received date</Table.Head>
         {/if}
       </Table.Row>
     </Table.Header>
