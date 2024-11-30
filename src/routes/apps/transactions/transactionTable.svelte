@@ -17,9 +17,9 @@
   let sortField: string = "";
   let searchData: string = "";
 
-  let hidableCoulumns: any[] = [
-    { name: "Error", value: false },
-  ];
+  // let hidableCoulumns: any[] = [
+  //   { name: "Error", value: false },
+  // ];
 
 
   async function getOrders() {
@@ -96,13 +96,6 @@
               <ChevronDown class="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content>
-            {#each hidableCoulumns as column}
-              <DropdownMenu.CheckboxItem bind:checked={column.value}
-                >{column.name}</DropdownMenu.CheckboxItem
-              >
-            {/each}
-          </DropdownMenu.Content>
         </DropdownMenu.Root>
       </div>
       <div>
@@ -143,47 +136,23 @@
             ><CaretSort class="w-4 h-4" /></Button
           >
         </Table.Head>
-        {#if hidableCoulumns[0].value}
           <Table.Head>Amount</Table.Head>
-        {/if}
-        {#if hidableCoulumns[1].value}
           <Table.Head>Order ID</Table.Head>
-        {/if}
-        {#if hidableCoulumns[2].value}
           <Table.Head>Status</Table.Head>
-        {/if}
-        {#if hidableCoulumns[3].value}
           <Table.Head>Response</Table.Head>
-        {/if}
-        {#if hidableCoulumns[4].value}
           <Table.Head>Error</Table.Head>
-        {/if}
-        {#if hidableCoulumns[5].value}
           <Table.Head>Response received date</Table.Head>
-        {/if}
       </Table.Row>
     </Table.Header>
     {#each tableData as data}
       <Table.Row>
         <Table.Cell>{data.transaction_id}</Table.Cell>
-        {#if hidableCoulumns[0].value}
           <Table.Cell>{data.amount}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[1].value}
           <Table.Cell>{data.order.order_id}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[2].value}
           <Table.Cell>{data.status}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[3].value}
           <Table.Cell>{data.response}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[4].value}
           <Table.Cell>{data.error}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[5].value}
           <Table.Cell>{data.response_received_date}</Table.Cell>
-        {/if}
       </Table.Row>
     {/each}
   </Table.Root>
