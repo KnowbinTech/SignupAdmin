@@ -1,6 +1,5 @@
 <script lang="ts">
-    import OrderTable from "./orderTable.svelte";
-    import { Button } from "$lib/components/ui/button";
+    import TransactionTable from "./transactionTable.svelte";
   </script>
   
   <div class="m-3 glow-border">
@@ -12,17 +11,10 @@
         <h4
           class="text-3xl font-bold tracking-tight text-gray-800 dark:text-gray-200 flex-1"
         >
-          Orders
+          Transactions
         </h4>
-        <!-- <div class="glow-border mr-4">
-          <Button
-            variant="outline"
-            class="text-xs flex items-center gap-2  px-4 py-1.5"
-            >Export</Button
-          >
-        </div> -->
       </div>
-      <OrderTable />
+      <TransactionTable />
     </div>
   </div>
   
