@@ -7,13 +7,8 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import API from "$lib/services/api";
   import { onMount } from "svelte";
-  import { MoreHorizontal } from "lucide-svelte";
-  import { toast } from "svelte-sonner";
-  import { goto } from "$app/navigation";
   import Pagination from "$lib/components/ui/table-pagination/pagination.svelte";
-  // import Invoice from "./invoice/+page.svelte"
-
-  // variables to handle pagination and table details
+  
   let page: number = 1;
   let totalItems: number;
   let per_page: number = 10;
@@ -21,8 +16,6 @@
   let sortData: boolean = true;
   let sortField: string = "";
   let searchData: string = "";
-  let isOpenInvoice: boolean = false
-  let invoiceData:any = {}
 
   let hidableCoulumns: any[] = [
     { name: "Email", value: false },
@@ -41,7 +34,7 @@
   async function getOrders() {
     try {
       let res = await API.get(
-        `/orders/order/?page=${page}&per_page=${per_page}&ordering=${sortField}&search=${searchData}`
+        `/transaction/details/?page=${page}&per_page=${per_page}&ordering=${sortField}&search=${searchData}`
       );
       totalItems = res.data.total;
       tableData = res.data.results;
@@ -64,66 +57,6 @@
   async function getPreviousPage() {
     page -= 1;
     await getOrders();
-  }
-
-  async function handleProcessing(id: any) {
-    API.post(`orders/order/${id}/order-processing/`)
-      .then(() => {
-        toast.success("Order status updated successfully");
-        getOrders();
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }
-
-  async function handlePacking(id: any) {
-    API.post(`orders/order/${id}/packing/`)
-      .then(() => {
-        toast.success("Order status updated successfully");
-        getOrders();
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }
-
-  async function handleReady(id: any) {
-    API.post(`orders/order/${id}/ready-for-dispatch/`)
-      .then(() => {
-        toast.success("Order status updated successfully");
-        getOrders();
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }
-
-  async function handleShipped(id: any) {
-    API.post(`orders/order/${id}/shipped/`)
-      .then(() => {
-        toast.success("Order status updated successfully");
-        getOrders();
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }
-
-  async function handleDelivered(id: any) {
-    API.post(`orders/order/${id}/delivered/`)
-      .then(() => {
-        toast.success("Order status updated successfully");
-        getOrders();
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }
-
-  function handleInvoice(data: any) {
-    invoiceData = data
-    isOpenInvoice = !isOpenInvoice
   }
 
   onMount(() => {
@@ -153,9 +86,6 @@
   }
 </script>
 
-<!-- {#if isOpenInvoice}
-<Invoice {invoiceData} on:close={()=>isOpenInvoice = false}/>
-{/if} -->
 <div class="w-full p-5">
   <div class="my-2 flex justify-between">
     <div>
@@ -217,125 +147,52 @@
     <Table.Header>
       <Table.Row>
         <Table.Head
-          >Name
+          >transaction_id
           <Button on:click={() => sortName()} variant="ghost"
             ><CaretSort class="w-4 h-4" /></Button
           >
         </Table.Head>
         {#if hidableCoulumns[0].value}
-          <Table.Head>Email</Table.Head>
+          <Table.Head>amount</Table.Head>
         {/if}
         {#if hidableCoulumns[1].value}
-          <Table.Head>Description</Table.Head>
+          <Table.Head>order</Table.Head>
         {/if}
         {#if hidableCoulumns[2].value}
-          <Table.Head>Order Status</Table.Head>
+          <Table.Head>Status</Table.Head>
         {/if}
         {#if hidableCoulumns[3].value}
-          <Table.Head>Payment Status</Table.Head>
+          <Table.Head>response</Table.Head>
         {/if}
         {#if hidableCoulumns[4].value}
-          <Table.Head>Payment Method</Table.Head>
+          <Table.Head>error</Table.Head>
         {/if}
         {#if hidableCoulumns[5].value}
-          <Table.Head>Total Amount</Table.Head>
+          <Table.Head>response_received_date</Table.Head>
         {/if}
-        {#if hidableCoulumns[6].value}
-          <Table.Head>Created At</Table.Head>
-        {/if}
-        {#if hidableCoulumns[7].value}
-          <Table.Head>Updated At</Table.Head>
-        {/if}
-        {#if hidableCoulumns[8].value}
-          <Table.Head>Created By</Table.Head>
-        {/if}
-        {#if hidableCoulumns[9].value}
-          <Table.Head>Updated By</Table.Head>
-        {/if}
-        <!-- <Table.Head>Action</Table.Head> -->
       </Table.Row>
     </Table.Header>
     {#each tableData as data}
       <Table.Row>
-        <Table.Cell>{data.user}</Table.Cell>
+        <Table.Cell>{data.transaction_id}</Table.Cell>
         {#if hidableCoulumns[0].value}
-          <Table.Cell>{data.email}</Table.Cell>
+          <Table.Cell>{data.amount}</Table.Cell>
         {/if}
         {#if hidableCoulumns[1].value}
-          <Table.Cell>{data.description}</Table.Cell>
+          <Table.Cell>{data.order}</Table.Cell>
         {/if}
         {#if hidableCoulumns[2].value}
-          <Table.Cell>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild let:builder>
-                <Button
-                  builders={[builder]}
-                  variant="ghost"
-                  class=" font-normal"
-                >
-                  {data.status}
-                  <ChevronDown class="ml-2 h-4 w-4" /></Button
-                >
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content class="absolute">
-                <DropdownMenu.Item on:click={() => handleProcessing(data.id)}
-                  >Order Processing</DropdownMenu.Item
-                >
-                <DropdownMenu.Item on:click={() => handlePacking(data.id)}
-                  >Order Packing</DropdownMenu.Item
-                >
-                <DropdownMenu.Item on:click={() => handleReady(data.id)}
-                  >Order Ready for Dispatch</DropdownMenu.Item
-                >
-                <DropdownMenu.Item on:click={() => handleShipped(data.id)}
-                  >Order Shipped</DropdownMenu.Item
-                >
-                <DropdownMenu.Item on:click={() => handleDelivered(data.id)}
-                  >Order Delivered</DropdownMenu.Item
-                >
-              </DropdownMenu.Content>
-            </DropdownMenu.Root></Table.Cell
-          >
+          <Table.Cell>{data.status}</Table.Cell>
         {/if}
         {#if hidableCoulumns[3].value}
-          <Table.Cell>{data.paymentStatus}</Table.Cell>
+          <Table.Cell>{data.response}</Table.Cell>
         {/if}
         {#if hidableCoulumns[4].value}
-          <Table.Cell>{data.paymentMethod}</Table.Cell>
+          <Table.Cell>{data.error}</Table.Cell>
         {/if}
         {#if hidableCoulumns[5].value}
-          <Table.Cell>{data.total_amount}</Table.Cell>
+          <Table.Cell>{data.response_received_date}</Table.Cell>
         {/if}
-        {#if hidableCoulumns[6].value}
-          <Table.Cell>{data.created_at}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[7].value}
-          <Table.Cell>{data.updated_at}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[8].value}
-          <Table.Cell>{data.created_by}</Table.Cell>
-        {/if}
-        {#if hidableCoulumns[9].value}
-          <Table.Cell>{data.updated_by}</Table.Cell>
-        {/if}
-        <!-- <Table.Cell>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild let:builder>
-              <Button builders={[builder]} variant="ghost"
-                ><MoreHorizontal class="h-4 w-4" /></Button
-              >
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content class="absolute">
-              <DropdownMenu.Item
-                ><i class="fa fa-eye sm mr-2 text-blue-500"></i>View</DropdownMenu.Item
-              >
-              <DropdownMenu.Item on:click={() => handleInvoice(data)}
-                ><i class="fa-solid fa-file-lines mr-2"
-                ></i>Invoice</DropdownMenu.Item
-              >
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
-        </Table.Cell> -->
       </Table.Row>
     {/each}
   </Table.Root>
