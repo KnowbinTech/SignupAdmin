@@ -252,7 +252,7 @@
         {#if hidableCoulumns[9].value}
           <Table.Head>Updated By</Table.Head>
         {/if}
-        <Table.Head>Action</Table.Head>
+        <!-- <Table.Head>Action</Table.Head> -->
       </Table.Row>
     </Table.Header>
     {#each tableData as data}
@@ -318,7 +318,7 @@
         {#if hidableCoulumns[9].value}
           <Table.Cell>{data.updated_by}</Table.Cell>
         {/if}
-        <Table.Cell>
+        <!-- <Table.Cell>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>
               <Button builders={[builder]} variant="ghost"
@@ -335,7 +335,7 @@
               >
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-        </Table.Cell>
+        </Table.Cell> -->
       </Table.Row>
     {/each}
   </Table.Root>
