@@ -9,6 +9,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { compressImage } from "$lib/Functions/commonFunctions";
   import { LoaderCircle } from "lucide-svelte";
+  import { Switch } from "$lib/components/ui/switch/index.js";
 
   const dispatch = createEventDispatcher();
 
@@ -25,6 +26,7 @@
     image: "",
     short_description: "",
     link: "",
+    is_in_shop_page: false,
   };
 
   if (editForm) {
@@ -94,6 +96,7 @@
         form.append("title", heroDetails.title);
         form.append("cta_text", heroDetails.cta_text);
         form.append("link", heroDetails.link);
+        form.append("is_in_shop_page", heroDetails.is_in_shop_page);
         // form.append("name", heroDetails.name);
 
         const url = editForm
@@ -180,7 +183,13 @@
       />
       <p class="text-red-500">{validation.link ? validation.link : ""}</p>
     </div>
+    <div class="flex items-center gap-2">
+      <Label for="Hero" class="ms-3">Is In Shop Page:</Label>
 
+      <div class="grid ">
+        <Switch id="Hero" bind:checked={heroDetails.is_in_shop_page} />
+      </div>
+    </div>
     <div class="flex justify-between mb-3">
       <Button type="button" variant="outline" on:click={pickAvatar}>
         <i class="fa-solid fa-image text-sm"></i>Upload image

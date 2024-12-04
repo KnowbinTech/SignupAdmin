@@ -16,9 +16,8 @@
   import { goto } from "$app/navigation";
   import AddToLookbook from "./addToLookbook/+page.svelte";
   import ViewProduct from "./viewProduct/+page.svelte";
-  import AddToCollection from "./addToCollection/+page.svelte"
+  import AddToCollection from "./addToCollection/+page.svelte";
   import ImageUploadDialog from "$lib/components/ui/image-upload/ImageUploadDialog.svelte";
-
 
   let dispatch = createEventDispatcher();
 
@@ -121,7 +120,7 @@
   }
 
   function viewVariant(data: any) {
-    console.log("qwdwfwf")
+    console.log("qwdwfwf");
     productID = data.id;
     productData2 = data;
     goto(`products/variant?product=${productID}`);
@@ -217,7 +216,10 @@
     getProducts();
   }
 
-  function openImageUploadDialog(productId: string, productImages: { id: string; image: string }[]) {
+  function openImageUploadDialog(
+    productId: string,
+    productImages: { id: string; image: string }[]
+  ) {
     selectedProductId = productId;
     selectedProductImages = productImages;
     showImageUploadDialog = true;
@@ -235,13 +237,13 @@
 {#if showImageUploadDialog}
   <ImageUploadDialog
     open={showImageUploadDialog}
-    productId={selectedProductId || ''}
+    productId={selectedProductId || ""}
     currentImages={selectedProductImages}
     on:close={closeImageUploadDialog}
     on:updateTableData={handleUpdateTableData}
   />
-  {/if}
-  <!-- on:imagesUpdated={handleImagesUpdated} -->
+{/if}
+<!-- on:imagesUpdated={handleImagesUpdated} -->
 
 <div>
   {#if showDeleteModal}
@@ -434,14 +436,14 @@
           <Table.Head>Rating</Table.Head>
         {/if}
         {#if hidableCoulumns[16].value}
-        <Table.Head>Preferred Gender</Table.Head>
-      {/if}
-      {#if hidableCoulumns[17].value}
-      <Table.Head>GST</Table.Head>
-    {/if}
-    {#if hidableCoulumns[18].value}
-    <Table.Head>Selling Price</Table.Head>
-  {/if}
+          <Table.Head>Preferred Gender</Table.Head>
+        {/if}
+        {#if hidableCoulumns[17].value}
+          <Table.Head>GST</Table.Head>
+        {/if}
+        {#if hidableCoulumns[18].value}
+          <Table.Head>Selling Price</Table.Head>
+        {/if}
         <Table.Head>Action</Table.Head>
       </Table.Row>
     </Table.Header>
@@ -450,31 +452,33 @@
         {#if hidableCoulumns[0].value}
           <Table.Cell>
             {#if data.images && data.images.length > 0}
-            <button
-              type="button"
-              class="focus:outline-none"
-              on:click={() => openImageUploadDialog(data.id, data.images)}
-              on:keydown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  openImageUploadDialog(data.id, data.images)
-                }
-              }}>
-              <img
-                src={`${data.images[0].image}`}
-                alt="product_image"
-                class="w-12 h-12 object-cover rounded-full"
-              />
-            </button>
+              <button
+                type="button"
+                class="focus:outline-none"
+                on:click={() => openImageUploadDialog(data.id, data.images)}
+                on:keydown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    openImageUploadDialog(data.id, data.images);
+                  }
+                }}
+              >
+                <img
+                  src={`${data.images[0].image}`}
+                  alt="product_image"
+                  class="w-12 h-12 object-cover rounded-full"
+                />
+              </button>
             {:else}
               <button
                 type="button"
                 class="focus:outline-none bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center"
                 on:click={() => openImageUploadDialog(data.id, [])}
                 on:keydown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
+                  if (event.key === "Enter" || event.key === " ") {
                     openImageUploadDialog(data.id, []);
                   }
-                }}>
+                }}
+              >
                 <span class="text-gray-500">No Image</span>
               </button>
             {/if}
@@ -546,14 +550,14 @@
           <Table.Cell>{data.rating} stars</Table.Cell>
         {/if}
         {#if hidableCoulumns[16].value}
-        <Table.Cell>{data.preferred_gender}</Table.Cell>
-      {/if}
-      {#if hidableCoulumns[17].value}
-      <Table.Cell>{data.gst.slab} %</Table.Cell>
-    {/if}
-    {#if hidableCoulumns[18].value}
-    <Table.Cell>{data.selling_price}</Table.Cell>
-  {/if}
+          <Table.Cell>{data.preferred_gender}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[17].value}
+          <Table.Cell>{data.gst.slab} %</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[18].value}
+          <Table.Cell>{data.selling_price}</Table.Cell>
+        {/if}
         <Table.Cell>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>
@@ -572,7 +576,9 @@
                 <i class="fa fa-trash sm mr-2" style="color:red">
                 </i>Delete</DropdownMenu.Item
               >
-              <DropdownMenu.Item on:click={() => openImageUploadDialog(data.id, data.images)}>
+              <DropdownMenu.Item
+                on:click={() => openImageUploadDialog(data.id, data.images)}
+              >
                 <i class="fa fa-image mr-2"></i> Add Image</DropdownMenu.Item
               >
               <DropdownMenu.Item on:click={() => addVariant(data)}>

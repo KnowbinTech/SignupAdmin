@@ -29,6 +29,14 @@
             ]
         },
         {
+            name: "Shiprocket Orders",
+            icon: "fa-cart-shopping",
+            items: [
+                {name: "Order List", page: "apps/shiprocket/order-list"},
+                {name: "Shipment List", page: "apps/shiprocket/shipment-list"},
+            ]
+        },
+        {
             name: "Products",
             icon: "fa-tag",
             route: "apps/products",

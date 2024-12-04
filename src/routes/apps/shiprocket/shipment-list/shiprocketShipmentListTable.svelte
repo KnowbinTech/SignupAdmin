@@ -17,20 +17,26 @@
   let sortField: string = "";
   let searchData: string = "";
 
-  // let hidableCoulumns: any[] = [
-  //   { name: "Error", value: false },
-  // ];
-
+  let hidableCoulumns: any[] = [
+    { name: "Order ID", value: false },
+    { name: "AWB Number", value: true },
+    { name: "Products", value: true },
+    { name: "Status", value: true },
+    { name: "Channel Name", value: false },
+    { name: "Payment Method", value: true },
+    { name: "Created At", value: false },
+    { name: "Channel ID", value: false }
+  ];
 
   async function getOrders() {
     try {
       let res = await API.get(
-        `/transaction/details/?page=${page}&per_page=${per_page}&ordering=${sortField}&search=${searchData}`
+        `/transaction/shiprocket/shipments/?page=${page}&per_page=${per_page}&ordering=${sortField}&search=${searchData}`
       );
-      totalItems = res.data.total;
-      tableData = res.data.results;
+      totalItems = res.meta.pagination.total;
+      tableData = res.data;
     } catch (error) {
-      console.error("fetch:order:", error);
+      console.error("fetch:shipments:", error);
       return [];
     }
   }
@@ -56,11 +62,11 @@
 
   function sortName() {
     if (sortData) {
-      sortField = "user";
+      sortField = "id";
       getOrders();
       sortData = !sortData;
     } else {
-      sortField = "-user";
+      sortField = "-id";
       getOrders();
       sortData = !sortData;
     }
@@ -82,12 +88,29 @@
     <div>
       <Input
         class="max-w-sm"
-        placeholder="Search Orders..."
+        placeholder="Search Shipments..."
         type="text"
         on:input={(event) => searchName(event)}
       />
     </div>
     <div class="flex">
+      <div class="mr-2">
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            <Button variant="outline" size="sm">
+              Column
+              <ChevronDown class="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content>
+            {#each hidableCoulumns as column}
+              <DropdownMenu.CheckboxItem bind:checked={column.value}
+                >{column.name}</DropdownMenu.CheckboxItem
+              >
+            {/each}
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </div>
       <div>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
@@ -121,28 +144,68 @@
     <Table.Header>
       <Table.Row>
         <Table.Head
-          >Transaction_id
+          >Shipment ID
           <Button on:click={() => sortName()} variant="ghost"
             ><CaretSort class="w-4 h-4" /></Button
           >
         </Table.Head>
-          <Table.Head>Amount</Table.Head>
+        {#if hidableCoulumns[0].value}
           <Table.Head>Order ID</Table.Head>
+        {/if}
+        {#if hidableCoulumns[1].value}
+          <Table.Head>AWB Number</Table.Head>
+        {/if}
+        {#if hidableCoulumns[2].value}
+          <Table.Head>Products</Table.Head>
+        {/if}
+        {#if hidableCoulumns[3].value}
           <Table.Head>Status</Table.Head>
-          <Table.Head>Response</Table.Head>
-          <Table.Head>Error</Table.Head>
-          <Table.Head>Response received date</Table.Head>
+        {/if}
+        {#if hidableCoulumns[4].value}
+          <Table.Head>Channel Name</Table.Head>
+        {/if}
+        {#if hidableCoulumns[5].value}
+          <Table.Head>Payment Method</Table.Head>
+        {/if}
+        {#if hidableCoulumns[6].value}
+          <Table.Head>Created At</Table.Head>
+        {/if}
+        {#if hidableCoulumns[7].value}
+          <Table.Head>Channel ID</Table.Head>
+        {/if}
       </Table.Row>
     </Table.Header>
     {#each tableData as data}
       <Table.Row>
-        <Table.Cell>{data.transaction_id}</Table.Cell>
-          <Table.Cell>{data.amount}</Table.Cell>
-          <Table.Cell>{data.order.order_id}</Table.Cell>
+        <Table.Cell>{data.id}</Table.Cell>
+        {#if hidableCoulumns[0].value}
+          <Table.Cell>{data.order_id}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[1].value}
+          <Table.Cell>{data.awb}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[2].value}
+          <Table.Cell>
+            {#each data.products as product}
+              {product.name} (Qty: {product.quantity})
+            {/each}
+          </Table.Cell>
+        {/if}
+        {#if hidableCoulumns[3].value}
           <Table.Cell>{data.status}</Table.Cell>
-          <Table.Cell>{data.response}</Table.Cell>
-          <Table.Cell>{data.error}</Table.Cell>
-          <Table.Cell>{data.response_received_date}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[4].value}
+          <Table.Cell>{data.channel_name}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[5].value}
+          <Table.Cell>{data.payment_method}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[6].value}
+          <Table.Cell>{data.created_at}</Table.Cell>
+        {/if}
+        {#if hidableCoulumns[7].value}
+          <Table.Cell>{data.channel_id}</Table.Cell>
+        {/if}
       </Table.Row>
     {/each}
   </Table.Root>
