@@ -85,10 +85,10 @@
 
   function confirmDelete() {
     API.delete(`/inventory/tax/${deletingTax.id}/delete_record/`)
-      .then(() => {
+      .then((response) => {
         closeDeleteModal();
         getTax();
-        toast("Tax Deleted Successfully!");
+        toast(response.data.message);
       })
       .catch((error) => {
         console.error("Error deleting Tax:", error);

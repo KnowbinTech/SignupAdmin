@@ -128,10 +128,10 @@
 
   function confirmDelete() {
     API.delete(`/products/product/${deletingProduct.id}/delete_record/`)
-      .then(() => {
+      .then((response) => {
         closeDeleteModal();
         getProducts();
-        toast("Product Deleted Successfully!");
+        toast(response.data.message);
       })
       .catch((error) => {
         console.error("Error deleting Product:", error);
