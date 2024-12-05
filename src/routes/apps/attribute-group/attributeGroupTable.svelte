@@ -93,6 +93,7 @@
       .catch((error) => {
         console.error("Error deleting Attribute:", error);
         closeDeleteModal();
+        toast(error.response.data.message);
       });
   }
 

@@ -99,6 +99,7 @@
       .catch((error) => {
         console.error("Error deleting Brand:", error);
         closeDeleteModal();
+        toast(error.response.data.message);
       });
   }
 

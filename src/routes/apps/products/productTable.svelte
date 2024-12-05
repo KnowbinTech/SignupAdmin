@@ -136,6 +136,7 @@
       .catch((error) => {
         console.error("Error deleting Product:", error);
         closeDeleteModal();
+        toast(error.response.data.message);
       });
   }
 

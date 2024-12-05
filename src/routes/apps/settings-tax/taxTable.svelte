@@ -93,6 +93,7 @@
       .catch((error) => {
         console.error("Error deleting Tax:", error);
         closeDeleteModal();
+        toast(error.response.data.message);
       });
   }
 
