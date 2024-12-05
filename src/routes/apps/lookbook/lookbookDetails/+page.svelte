@@ -22,7 +22,7 @@
   </div>
   <LookbookTable />
 
-  <div class="flex justify-end">
+  <!-- <div class="flex justify-end">
     <Button class="text-end" on:click={goBack}>Go Back</Button>
-  </div>
+  </div> -->
 </div>
