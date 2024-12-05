@@ -102,6 +102,7 @@
       .catch((error) => {
         console.error("Error deleting Category:", error);
         closeDeleteModal();
+        toast(error.response.data.message);
       });
   }
 
