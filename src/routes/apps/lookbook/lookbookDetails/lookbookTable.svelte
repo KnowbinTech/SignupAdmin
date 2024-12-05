@@ -111,7 +111,6 @@
 
 <div
   class="m-3 bg-background text-foreground rounded-md p-4 px-6 border"
-  style="height: calc(100vh - 80px);"
 >
   <div class="w-full p-5">
     <div class="my-2 flex justify-between">
