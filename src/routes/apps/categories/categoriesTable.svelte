@@ -94,10 +94,10 @@
 
   function confirmDelete() {
     API.delete(`/masterdata/category/${deletingCategory.id}/delete_record/`)
-      .then(() => {
+      .then((response) => {
         closeDeleteModal();
         getCategory();
-        toast("Category Deleted Successfully!");
+        toast(response.data.message);
       })
       .catch((error) => {
         console.error("Error deleting Category:", error);

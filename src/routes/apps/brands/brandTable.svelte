@@ -91,10 +91,10 @@
 
   function confirmDelete() {
     API.delete(`/masterdata/brand/${deletingBrand.id}/delete_record/`)
-      .then(() => {
+      .then((response) => {
         closeDeleteModal();
         getBrands();
-        toast("Brand Deleted Successfully!");
+        toast(response.data.message);
       })
       .catch((error) => {
         console.error("Error deleting Brand:", error);

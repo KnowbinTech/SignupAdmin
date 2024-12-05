@@ -106,10 +106,10 @@
 
   function confirmDelete() {
     API.delete(`/masterdata/attribute/${deletingAttribute.id}/delete_record/`)
-      .then(() => {
+      .then((response) => {
         closeDeleteModal();
         getAttribute();
-        toast("Attribute Deleted Successfully!");
+        toast(response.data.message);
       })
       .catch((error) => {
         console.error("Error deleting Attribute:", error);

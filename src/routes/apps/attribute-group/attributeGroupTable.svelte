@@ -85,10 +85,10 @@
     API.delete(
       `/masterdata/attributegroup/${deletingAttributeGroup.id}/delete_record/`
     )
-      .then(() => {
+      .then((response) => {
         closeDeleteModal();
         getAttributes();
-        toast("Attribute Deleted Successfully!");
+        toast(response.data.message);
       })
       .catch((error) => {
         console.error("Error deleting Attribute:", error);
