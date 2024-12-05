@@ -47,7 +47,7 @@
 
   async function getCollection() {
     try {
-      const response = await API.get(`/products/collection/${id}`);
+      const response = await API.get(`/products/collection/${id}/`);
       collectionData = response.data.collection_items;
     } catch (error) {
       console.error("fetch:collection:", error);

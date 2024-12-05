@@ -49,7 +49,7 @@
 
   async function getCollection() {
     try {
-      const response = await API.get(`/products/look-book/${id}`);
+      const response = await API.get(`/products/look-book/${id}/`);
       lookbookData = response.data.look_book_items;
     } catch (error) {
       console.error("fetch:collection:", error);
