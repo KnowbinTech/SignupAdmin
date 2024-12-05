@@ -12,16 +12,16 @@
   import ConfirmDeleteModal from "$lib/components/ui/confirmation-modal/ConfirmDeleteModal.svelte";
   import { Input } from "$lib/components/ui/input/index.js";
   import { goto } from "$app/navigation";
+  import { page } from '$app/stores';
+
 
   const dispatch = createEventDispatcher();
 
 
   let lookbookData: any = [];
-  const urlParams = new URLSearchParams(window.location.search);
 
-  let id: any = urlParams.get("id");
-  id ? localStorage.setItem("lookbookId", id) : "";
-  let lookbookId: any = localStorage.getItem("lookbookId");
+    $: id = $page.url.searchParams.get('id');
+
 
   let showDeleteModal = false;
   let deletingLookbookProduct: any;
@@ -49,7 +49,7 @@
 
   async function getCollection() {
     try {
-      const response = await API.get(`/products/look-book/${lookbookId}`);
+      const response = await API.get(`/products/look-book/${id}`);
       lookbookData = response.data.look_book_items;
     } catch (error) {
       console.error("fetch:collection:", error);
@@ -68,8 +68,7 @@
   function pageLimit(event: any, value: any) {}
 
   function goBack() {
-    localStorage.removeItem("lookbookId");
-    goto("/lookbook/");
+    history.back();
   }
 
   function onDelete(id: any, name: any) {
