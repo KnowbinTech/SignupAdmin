@@ -17,7 +17,7 @@
       Attribute
     </h4>
     <div class="glow-border mr-4">
-      <Button
+      <!-- <Button
         variant="outline"
         class="text-xs flex items-center gap-2  px-4 py-1.5"
         on:click={() => toggleForm()}
@@ -25,7 +25,7 @@
         <span>
           <i class="fa-solid fa-plus text-sm"></i>
         </span>New Attribute
-      </Button>
+      </Button> -->
     </div>
   </div>
   <AttributeTable {showForm} on:cancel={() => (showForm = false)}/>

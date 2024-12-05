@@ -32,9 +32,9 @@
       isLoading = true;
       validation = {};
 
-      if (name == "") {
-        validation.name = ["This field may not be blank."];
-      }
+      // if (name == "") {
+      //   validation.name = ["This field may not be blank."];
+      // }
 
       if (value == "") {
         validation.value = ["This field may not be blank."];
@@ -42,7 +42,7 @@
 
       const form = new FormData();
 
-      form.append("name", name);
+      // form.append("name", name);
       form.append("value", value);
 
       const url = editForm
@@ -66,10 +66,8 @@
         dispatch("cancel");
 
     } catch (error: any) {
-      const action = editForm ? "Update Attribute" : "Create Attribute";
-      console.log(`${action}:`, error);
       validation = error.response.data;
-      toast(`Failed to ${action}`);
+      toast(error.response.data);
     } finally {
       isLoading = false;
     }
@@ -96,8 +94,8 @@
         >Name</Label
       >
       <div class="mb-2 ">
-        <Input required type="text" name="name" id="name" bind:value={name} class="{validation.name ? 'border-red-500' : ''}"/>
-        <p class="text-red-500">{validation.name ? validation.name : ""}</p>
+        <Input required type="text" disabled name="name" id="name" bind:value={name} class="{validation.name ? 'border-red-500' : ''}"/>
+        <!-- <p class="text-red-500">{validation.name ? validation.name : ""}</p> -->
       </div>
     </div>
     <div class="grid gap-2">
