@@ -14,17 +14,14 @@
   import ConfirmDeleteModal from "$lib/components/ui/confirmation-modal/ConfirmDeleteModal.svelte";
   import { Input } from "$lib/components/ui/input/index.js";
   import { goto } from "$app/navigation";
+  import { page } from '$app/stores';
 
   const dispatch = createEventDispatcher();
 
 
   let collectionData: any = [];
 
-  const urlParams = new URLSearchParams(window.location.search);
-
-  let id: any = urlParams.get("id");
-  id? localStorage.setItem('collectionId', id):"";
-  let collectionId: any = localStorage.getItem("collectionId");
+  $: id = $page.url.searchParams.get('id');
 
   let showDeleteModal = false;
   let deletingCollectionProduct: any;
@@ -50,8 +47,8 @@
 
   async function getCollection() {
     try {
-      const response = await API.get(`/products/collection/${collectionId}`);
-      collectionData = response.data.collection_items.map((i) => i.product);
+      const response = await API.get(`/products/collection/${id}`);
+      collectionData = response.data.collection_items;
     } catch (error) {
       console.error("fetch:collection:", error);
       return [];
@@ -95,7 +92,6 @@
 
   function pageLimit(event: any, value: any) {}
   function goBack() {
-    localStorage.removeItem("collectionId");
     history.back();
   }
 </script>
