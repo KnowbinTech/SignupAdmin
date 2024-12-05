@@ -1,5 +1,5 @@
 import imageCompression from 'browser-image-compression';
-import heic2any from 'heic2any';
+
 
 export const compressImage = async (file: File, useQualityCompression: boolean) => {
     try {
@@ -67,15 +67,21 @@ const convertToWebP = async (file: File): Promise<File> => {
             if (file.type === 'image/heic' || file.type === 'image/heif' || file.type === '') {
                 console.log("heic image")
                 // Convert HEIC to WebP directly using heic2any
-                const webPBlob = await heic2any({
-                    blob: file,
-                    toType: 'image/webp',
-                });
-                const webPFile = new File([webPBlob as Blob], file.name.replace(/\.\w+$/, '.webp'), {
-                    type: 'image/webp',
-                });
-                console.log({ webPFile })
-                resolve(webPFile);
+                if (typeof window !== 'undefined') {
+                    import('heic2any').then(async (module) => {
+                        // Use heic2any here
+                        const heic2any = module.default;
+                        const webPBlob = await heic2any({
+                            blob: file,
+                            toType: 'image/webp',
+                        });
+                        const webPFile = new File([webPBlob as Blob], file.name.replace(/\.\w+$/, '.webp'), {
+                            type: 'image/webp',
+                        });
+                        console.log({ webPFile })
+                        resolve(webPFile);
+                    }).catch(err => console.error(err));
+                }
             } else {
                 // Convert other formats (e.g., JPEG, PNG) to WebP using canvas
                 console.log('else function executed')
