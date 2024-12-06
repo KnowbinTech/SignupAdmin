@@ -116,11 +116,11 @@
           class="flex flex-row items-center justify-between space-y-0 pb-2"
         >
           <Card.Title class="text-sm font-medium">Total Orders</Card.Title>
-          <DollarSign class="h-4 w-4 text-muted-foreground" />
+          <div>₹</div>
         </Card.Header>
         <Card.Content>
           <div class="text-2xl font-bold">
-            ${dashboardData?.sales?.total_sales?.toLocaleString() ?? "0"}
+            ₹{dashboardData?.sales?.total_sales?.toLocaleString() ?? "0"}
           </div>
           <p class="text-xs text-muted-foreground">
             {dashboardData?.sales?.percentage_change ?? "0%"}
@@ -187,7 +187,7 @@
       </Card.Root>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
       <Card.Root class="col-span-4">
         <Card.Header>
           <Card.Title>Monthly Sales</Card.Title>
@@ -197,57 +197,108 @@
         </Card.Content>
       </Card.Root>
 
-      <Card.Root class="col-span-3">
+      <Card.Root class="col-span-4">
         <Card.Header>
           <Card.Title>Top Products</Card.Title>
-          <Card.Description>Best selling products by quantity</Card.Description>
         </Card.Header>
         <Card.Content>
-          {#if dashboardData?.products?.top_products}
-            <RecentSales products={dashboardData.products.top_products} />
+          {#if dashboardData?.products?.top_products?.length}
+            <div class="grid grid-cols-4 gap-4 py-2 font-medium text-sm">
+              <div class="text-gray-500">Product Name</div>
+              <div class="text-right text-gray-500">Total Quantity Sold</div>
+              <div class="text-right text-gray-500">Total Revenue</div>
+              <div class="text-right text-gray-500">Avg Revenue per Unit</div>
+            </div>
+            <div class="space-y-2">
+              {#each dashboardData.products.top_products.sort((a, b) => b.total_quantity_sold - a.total_quantity_sold) as product}
+                <div class="grid grid-cols-4 gap-4 items-center py-2">
+                  <div class="font-semibold">
+                    {product.product_variant__product__name}
+                  </div>
+                  <div class="text-right">
+                    {product.total_quantity_sold.toLocaleString()}
+                  </div>
+                  <div class="text-right font-bold">
+                    ₹{product.total_revenue.toLocaleString()}
+                  </div>
+                  <div class="text-right">
+                    ₹{Math.round(product.total_revenue / product.total_quantity_sold).toLocaleString()}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {:else}
+            <p class="text-center text-gray-500">No top products data available</p>
           {/if}
         </Card.Content>
       </Card.Root>
+      
     </div>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-      <Card.Root class="col-span-4">
+      <Card.Root class="col-span-3">
         <Card.Header>
           <Card.Title>Category Performance</Card.Title>
         </Card.Header>
         <Card.Content>
-          {#if dashboardData?.products?.category_performance}
-            <div class="space-y-4">
-              {#each dashboardData.products.category_performance as category}
-                <div class="flex items-center justify-between">
-                  <span
-                    >{category.product_variant__product__category__name}</span
-                  >
-                  <span class="font-bold"
-                    >${category.total_revenue?.toLocaleString()}</span
-                  >
+          {#if dashboardData?.products?.category_performance?.length}
+            <div class="grid grid-cols-3 gap-4 py-2 font-medium text-sm">
+              <div class="text-gray-500">Category</div>
+              <div class="text-center text-gray-500">Total Quantity Sold</div>
+              <div class="text-right text-gray-500">Total Revenue</div>
+            </div>
+            <div class="space-y-2">
+              {#each dashboardData.products.category_performance.sort((a, b) => b.total_quantity_sold - a.total_quantity_sold) as category}
+                <div class="grid grid-cols-3 gap-4 items-center py-2">
+                  <div class="font-semibold">
+                    {category.product_variant__product__categories__name}
+                  </div>
+                  <div class="text-center">
+                    {category.total_quantity_sold.toLocaleString()}
+                  </div>
+                  <div class="text-right font-bold">
+                    ₹{category.total_revenue.toLocaleString()}
+                  </div>
                 </div>
               {/each}
             </div>
+          {:else}
+            <p class="text-center text-gray-500">No category performance data available</p>
           {/if}
         </Card.Content>
       </Card.Root>
 
-      <Card.Root class="col-span-3">
+      <Card.Root class="col-span-4">
         <Card.Header>
           <Card.Title>Low Performing Products</Card.Title>
         </Card.Header>
         <Card.Content>
-          {#if dashboardData?.products?.low_performing_products}
-            <div class="space-y-4">
-              {#each dashboardData.products.low_performing_products as product}
-                <div class="flex items-center justify-between">
-                  <span>{product.product_name}</span>
-                  <span class="text-red-500">
-                    {product.total_quantity_sold} units
-                  </span>
+          {#if dashboardData?.products?.low_performing_products?.length}
+            <div class="grid grid-cols-4 gap-4 py-2 font-medium text-sm">
+              <div class="text-gray-500">Product Name</div>
+              <div class="text-right text-gray-500">Total Quantity Sold</div>
+              <div class="text-right text-gray-500">Total Revenue</div>
+              <div class="text-right text-gray-500">Avg Revenue per Unit</div>
+            </div>
+            <div class="space-y-2">
+              {#each dashboardData.products.low_performing_products.sort((a, b) => a.total_quantity_sold - b.total_quantity_sold) as product}
+                <div class="grid grid-cols-4 gap-4 items-center py-2">
+                  <div class="font-semibold">
+                    {product.product_name}
+                  </div>
+                  <div class="text-right text-red-500">
+                    {product.total_quantity_sold.toLocaleString()} units
+                  </div>
+                  <div class="text-right font-bold text-red-500">
+                    ₹{product.total_revenue.toLocaleString()}
+                  </div>
+                  <div class="text-right text-red-500">
+                    ₹{Math.round(product.total_revenue / product.total_quantity_sold).toLocaleString()}
+                  </div>
                 </div>
               {/each}
             </div>
+          {:else}
+            <p class="text-center text-gray-500">No low-performing products data available</p>
           {/if}
         </Card.Content>
       </Card.Root>
