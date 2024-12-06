@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import LookbookTable from "./lookbookTable.svelte";
+  import { exportExcel } from "$lib/Functions/commonFunctions";
 
   let showForm: boolean = false;
   function toggleForm() {
@@ -14,11 +15,11 @@
       class="text-3xl font-bold tracking-tight text-gray-800 dark:text-gray-200 flex-1">
       Lookbook
     </h4>
-    <!-- <div class="glow-border mr-4">
-      <Button variant="outline" class="glow-border-content">
+    <div class="glow-border mr-4">
+      <Button variant="outline" class="glow-border-content" on:click={()=>exportExcel('/products/look-book/export/')}>
         Export Lookbook
       </Button>
-    </div> -->
+    </div>
     <div class="glow-border mr-4">
       <Button
         variant="outline"

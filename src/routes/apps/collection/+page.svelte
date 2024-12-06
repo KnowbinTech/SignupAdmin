@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import CollectionTable from "./collectionTable.svelte";
+  import { exportExcel } from "$lib/Functions/commonFunctions";
 
   let showForm: boolean = false;
 
@@ -18,13 +19,14 @@
     >
       Collection
     </h4>
-    <!-- <div class="glow-border mr-4">
+    <div class="glow-border mr-4">
       <Button
         variant="outline"
         class="text-xs flex items-center gap-2  px-4 py-1.5"
+        on:click={()=>exportExcel('/products/collection/export/')}
         >Export Collection</Button
       >
-    </div> -->
+    </div>
     <div class="glow-border mr-4">
       <Button
         variant="outline"
