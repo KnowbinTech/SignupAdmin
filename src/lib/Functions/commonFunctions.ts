@@ -1,6 +1,6 @@
 import imageCompression from "browser-image-compression";
 import API from '$lib/services/api';
-import * as XLSX from 'xlsx';
+import * as Excel from 'exceljs';
 
 
 export const compressImage = async (
@@ -145,34 +145,36 @@ const convertToWebP = async (file: File): Promise<File> => {
 
 export const exportExcel = async (url: string) => {
   try {
-    // Request binary data from the API
     const response = await API.get(url, {
       responseType: "arraybuffer",
     });
 
-    const binaryData = response.data; // Binary response
+    // Create a new workbook using ExcelJS
+    const workbook = new Excel.Workbook();
+    await workbook.xlsx.load(response.data);
 
-    // Read the binary data directly as an Excel file using SheetJS
-    const workbook = XLSX.read(binaryData, { type: "array" });
+    // Get the first worksheet
+    const worksheet = workbook.worksheets[0];
+    
+    // Convert to array of arrays (if needed)
+    const jsonData = worksheet.getSheetValues();
+    console.log(jsonData);
 
-    // Process the workbook (e.g., get the first sheet)
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-    console.log(jsonData); // Logs the Excel data as JSON (array of arrays)
-
-    // If you want to trigger a download of the file:
-    const blob = new Blob([binaryData], {
+    // Create download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const elexUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = elexUrl;
-    // a.download = 'exported_hero_section.xlsx'; // Set any name for the download
+    a.download = 'exported_file.xlsx';
     document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(elexUrl);
   } catch (error) {
     console.error("Error handling the file:", error);
+    throw error;
   }
-}
+};
