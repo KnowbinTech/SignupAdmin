@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import CategoriesTable from "./categoriesTable.svelte";
+  import { exportExcel } from "$lib/Functions/commonFunctions";
 
   let showForm: boolean = false;
 
@@ -27,6 +28,11 @@
         </span>New Category
       </Button>
     </div>
+    <div class="glow-border mr-4 ">
+      <Button variant="outline" class=""
+      on:click={()=>exportExcel('/masterdata/category/export/')}
+      >Export Category</Button>
+  </div>
   </div>
   <CategoriesTable {showForm} on:cancel={() => (showForm = false)} />
 </div>

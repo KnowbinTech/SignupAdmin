@@ -1,6 +1,7 @@
 <script lang="ts">
   import BrandTable from "./brandTable.svelte";
   import { Button } from "$lib/components/ui/button";
+  import { exportExcel } from "$lib/Functions/commonFunctions";
 
   let showForm: boolean = false;
   let renderTable: boolean = false;
@@ -28,6 +29,11 @@
         </span>New Brand
       </Button>
     </div>
+    <div class="glow-border mr-4 ">
+      <Button variant="outline" class=""
+      on:click={()=>exportExcel('/masterdata/brand/export/')}
+      >Export Brands</Button>
+  </div>
   </div>
   <BrandTable {showForm} on:cancel={() => (showForm = false)} />
 </div>

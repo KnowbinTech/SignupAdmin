@@ -13,4 +13,5 @@
       <Button variant="outline" class=" mr-4 ">Export Warehouse</Button>
   </div>
   <WarehouseTable />
+  
 </div>
