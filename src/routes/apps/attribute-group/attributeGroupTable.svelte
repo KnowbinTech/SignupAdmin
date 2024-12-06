@@ -220,9 +220,9 @@
               >
             </DropdownMenu.Trigger>
             <DropdownMenu.Content class="absolute">
-              <DropdownMenu.Item on:click={() => onEdit(data)}
+              <!-- <DropdownMenu.Item on:click={() => onEdit(data)}
                 ><i class="fa fa-pencil sm mr-2"></i>Edit</DropdownMenu.Item
-              >
+              > -->
               <DropdownMenu.Item on:click={() => onDelete(data.id, data.name)}
                 ><i class="fa fa-trash sm mr-2" style="color:red"
                 ></i>Delete</DropdownMenu.Item
