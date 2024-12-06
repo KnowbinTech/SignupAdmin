@@ -39,6 +39,7 @@
         "cmdk-sv": "^0.0.17",
         "dotenv": "^16.4.5",
         "embla-carousel-svelte": "^8.0.1",
+        "exceljs": "^4.4.0",
         "formsnap": "^1.0.0",
         "heic2any": "^0.0.4",
         "lucide-svelte": "^0.356.0",

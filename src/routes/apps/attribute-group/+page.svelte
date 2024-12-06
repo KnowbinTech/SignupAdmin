@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import AttributeGroupTable from "./attributeGroupTable.svelte";
+  import { exportExcel } from "$lib/Functions/commonFunctions";
 
   let showForm: boolean = false;
 
@@ -27,6 +28,11 @@
         </span>New Attribute Group
       </Button>
     </div>
+    <div class="glow-border mr-4 ">
+      <Button variant="outline" class=""
+      on:click={()=>exportExcel('/masterdata/attributegroup/export/')}
+      >Export</Button>
+  </div>
   </div>
   <AttributeGroupTable {showForm} on:cancel={() => (showForm = false)}/>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import AttributeTable from "./attributeTable.svelte";
+  import { exportExcel } from "$lib/Functions/commonFunctions";
 
   let showForm: boolean = false;
 
@@ -26,6 +27,11 @@
           <i class="fa-solid fa-plus text-sm"></i>
         </span>New Attribute
       </Button> -->
+      <div class="glow-border ">
+        <Button variant="outline" class=""
+        on:click={()=>exportExcel('/masterdata/attribute/export/')}
+        >Export Attributes</Button>
+    </div>
     </div>
   </div>
   <AttributeTable {showForm} on:cancel={() => (showForm = false)}/>
