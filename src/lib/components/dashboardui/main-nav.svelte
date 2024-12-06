@@ -44,6 +44,7 @@
                 {name: "Lookbook", page: "apps/lookbook"},
                 {name: "Collection", page: "apps/collection"},
                 {name: "Products", page: "apps/products"},
+                {name: "Dimension", page: "apps/dimension"},
                 {name: "Categories", page: "apps/categories"},
                 {name: "Brands", page: "apps/brands"},
                 {name: "Attribute Group", page: "apps/attribute-group"},
