@@ -60,7 +60,7 @@
   });
 
   customerGrowthStore.subscribe((value) => {
-    if (value) customerGrowth = value;
+      if (value) customerGrowth = value;
   });
 
   customerRetentionStore.subscribe((value) => {
@@ -216,7 +216,7 @@
                     {product.product_variant__product__name}
                   </div>
                   <div class="text-right">
-                    {product.total_quantity_sold.toLocaleString()}
+                    {product.total_quantity_sold.toLocaleString()} units
                   </div>
                   <div class="text-right font-bold">
                     ₹{product.total_revenue.toLocaleString()}
@@ -253,7 +253,7 @@
                     {category.product_variant__product__categories__name}
                   </div>
                   <div class="text-center">
-                    {category.total_quantity_sold.toLocaleString()}
+                    {category.total_quantity_sold.toLocaleString()} units
                   </div>
                   <div class="text-right font-bold">
                     ₹{category.total_revenue.toLocaleString()}
