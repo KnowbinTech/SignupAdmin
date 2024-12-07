@@ -24,7 +24,7 @@
   let brandDetails = {
     name: "",
     logo: "",
-    description: "",
+    // description: "",
   };
   let id = "";
 
@@ -32,7 +32,7 @@
     brandDetails = {
       name: editData.name,
       logo: editData.logo,
-      description: editData.description,
+      // description: editData.description,
     };
     id = editData.id;
   }
@@ -66,20 +66,22 @@
 
       if (brandDetails.name == "") {
         validation.name = ["This field may not be blank."];
+      
       }
 
-      if (brandDetails.description == "") {
-        validation.description = ["This field may not be blank."];
-      }
+      // if (brandDetails.description == "") {
+      //   validation.description = ["This field may not be blank."];
+      // }
 
       const form = new FormData();
       if (updateImage) {
         form.append("logo", brandDetails.logo);
       }
       form.append("name", brandDetails.name);
-      form.append("description", brandDetails.description);
+      // form.append("description", brandDetails.description);
 
-      if (validation.name || validation.description) {
+      // if (validation.name || validation.description) {
+      if (validation.name ) {
         toast(`Please fill the required field`);
       } else {
         const url = editForm
@@ -111,6 +113,7 @@
     dispatch("cancel");
     updateImage = false;
   }
+
 </script>
 
 <Dialog.Root open={true} onOpenChange={cancelModel}>
@@ -130,7 +133,7 @@
       <p class="text-red-500">{validation.name ? validation.name : ""}</p>
     </div>
 
-    <div class="mb-3">
+    <!-- <div class="mb-3">
       <Label for="description">Description</Label>
       <Textarea
         id="description"
@@ -141,7 +144,7 @@
       <p class="text-red-500">
         {validation.description ? validation.description : ""}
       </p>
-    </div>
+    </div> -->
 
     <div class="flex justify-between mb-3">
       <Button type="button" variant="outline" on:click={pickAvatar}>
