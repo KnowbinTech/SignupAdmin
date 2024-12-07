@@ -171,14 +171,22 @@
       <Table.Row>
         {#if hidableCoulumns[0].value}
           <Table.Cell>
+            {#if data.profile_picture}
             <img
               src={`${data.profile_picture}`}
               alt="profile_picture"
               class="w-12 h-12 object-cover rounded-full"
-            /></Table.Cell
+            />
+            {:else}
+            <div class="size-12 bg-secondary rounded-full flex items-center justify-center text-2xl text-foreground/80 font-bold">
+              {data.username.charAt(0).toUpperCase()}
+            </div>
+            {/if}
+            
+            </Table.Cell
           >
         {/if}
-        <Table.Cell>{data.first_name} {data.last_name}</Table.Cell>
+        <Table.Cell>{data.name} </Table.Cell>
         {#if hidableCoulumns[1].value}
           <Table.Cell>{data.username}</Table.Cell>
         {/if}
