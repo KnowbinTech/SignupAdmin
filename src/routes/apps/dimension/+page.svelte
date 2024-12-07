@@ -16,7 +16,7 @@
     <h4
       class="text-3xl font-bold tracking-tight text-gray-800 dark:text-gray-200 flex-1"
     >
-      Dimentions
+      Dimensions
     </h4>
     <div class="glow-border mr-4">
       <Button

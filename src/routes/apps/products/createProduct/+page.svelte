@@ -1,7 +1,7 @@
 <script lang="ts">
   import API from "$lib/services/api";
   import { Button } from "$lib/components/ui/button";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   import { Input } from "$lib/components/ui/input";
   import { Textarea } from "$lib/components/ui/textarea";
   import * as Select from "$lib/components/ui/select";
@@ -29,6 +29,7 @@
   let validation: any = {};
   let isLoading = false;
   let isUpLoadingImage = false;
+  let dimensions: Dimension[] = [];
 
   const genders: string[] = ["Men", "Women", "Unisex", "Boys", "Girls"];
   // This function processes the tag input when the user types or pastes the tags
@@ -94,6 +95,17 @@
     slab: string;
   };
 
+  type Dimension = {
+    id: string;
+    name: string;
+    height: string;
+    breadth: string;
+    length: string;
+    weight: string;
+    weight_unit: string;
+    dimension_unit: string;
+  };
+
   export const brands = writable<Brand[]>([], (set) => {
     getBrands().then((data) => {
       set(data);
@@ -152,6 +164,16 @@
       set(data);
     });
   });
+
+  async function getDimension() {
+    try {
+      const res = await API.get("/masterdata/dimension/");
+      dimensions = res.data.results;
+    } catch (error) {
+      console.error("fetch:dimensions:", error);
+      return [];
+    }
+  }
 
   function handleCategoryChange(selectedCategoryId: string) {
     editCategory = true;
@@ -216,6 +238,10 @@
         validation.description = ["This field may not be blank."];
       }
 
+      if (productDetails.dimension == "") {
+        validation.dimension = ["This field may not be blank."];
+      }
+
       if (productDetails.sku == "") {
         validation.sku = ["This field may not be blank."];
       }
@@ -231,10 +257,6 @@
       if (productDetails.selling_price == "") {
         validation.selling_price = ["This field may not be blank."];
       }
-
-      // if (productDetails.dimension == "") {
-      //   validation.dimension = ["This field may not be blank."];
-      // }
 
       if (productDetails.categories == "") {
         validation.categories = ["This field may not be blank."];
@@ -280,7 +302,6 @@
         }
 
         if (!editTax) {
-          console.log(productDetails.gst);
           productDetails.gst = productDetails.gst.id;
         }
         form.append("name", productDetails.name);
@@ -290,7 +311,7 @@
         form.append("price", productDetails.price);
         form.append("gst", productDetails.gst);
         form.append("selling_price", productDetails.selling_price);
-        // form.append("dimension", productDetails.dimension);
+        form.append("dimension", productDetails.dimension.id);
         form.append("condition", productDetails.condition);
         form.append("categories", productDetails.categories);
         form.append("brand", productDetails.brand);
@@ -445,6 +466,10 @@
       validation.rating = "";
     }
   }
+
+  onMount(async () => {
+    await getDimension();
+  });
 </script>
 
 <Dialog.Root
@@ -526,7 +551,7 @@
     </div>
 
     <div class="grid grid-cols-3 items-end gap-4">
-      <div class="grid gap-2 col-span-2">
+      <div class="grid gap-2">
         <Label for="tags">Tags</Label>
         <Input
           id="tags"
@@ -565,6 +590,37 @@
         </Select.Root>
         <p class="text-red-500">
           {validation.preferred_gender ? validation.preferred_gender : ""}
+        </p>
+      </div>
+      <div class="grid gap-2">
+        <Label for="security-level">Dimension</Label>
+        <Select.Root>
+          <Select.Trigger
+            class="input capitalize {validation.dimension
+              ? 'border-red-500'
+              : ''}"
+          >
+            {productDetails.dimension
+              ? productDetails.dimension.name
+              : "Select Dimension"}
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Group>
+              {#each dimensions as dimension}
+                <Select.Item
+                  value={dimension.name}
+                  label={dimension.name}
+                  class="capitalize card"
+                  on:click={()=>{productDetails.dimension = dimension}}
+                >
+                  {dimension.name}
+                </Select.Item>
+              {/each}
+            </Select.Group>
+          </Select.Content>
+        </Select.Root>
+        <p class="text-red-500">
+          {validation.dimension ? validation.dimension : ""}
         </p>
       </div>
     </div>
