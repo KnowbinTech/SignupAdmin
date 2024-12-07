@@ -33,7 +33,7 @@
 
   let hidableCoulumns: any[] = [
     { name: "Logo", value: true },
-    { name: "Description", value: true },
+    { name: "Description", value: false },
     { name: "Created At", value: false },
     { name: "Updated At", value: false },
     { name: "Created By", value: false },
